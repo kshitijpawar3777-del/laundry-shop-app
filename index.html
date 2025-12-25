@@ -8,15 +8,15 @@
   .box { background: white; padding: 26px; border-radius: 16px; width: 92%; max-width: 380px; box-shadow: 0 15px 35px rgba(0,0,0,0.12); }
   h1 { text-align: center; margin-bottom: 22px; font-size: 24px; color: #1e293b; }
   input, select { width: 100%; padding: 14px; margin-bottom: 14px; font-size: 16px; border-radius: 10px; border: 1px solid #cbd5e1; outline: none; box-sizing: border-box;}
-  input:focus, select:focus { border-color: #2563eb; }
-  button { width: 100%; padding: 15px; font-size: 17px; border-radius: 12px; border: none; background: linear-gradient(135deg, #2563eb, #1d4ed8); color: white; cursor: pointer; margin-bottom: 12px; font-weight: 500; }
+  button { width: 100%; padding: 15px; font-size: 16px; border-radius: 12px; border: none; background: #2563eb; color: white; cursor: pointer; margin-bottom: 12px; font-weight: 500; }
   button:active { transform: scale(0.98); }
-  .back { background: linear-gradient(135deg, #64748b, #475569); }
-  p { font-size: 15px; color: #334155; line-height: 1.5; }
-  hr { border: none; border-top: 1px solid #e5e7eb; margin: 14px 0; }
-  .bill-card { background: #f8fafc; padding: 10px; border: 1px solid #e2e8f0; border-radius: 8px; margin-bottom: 8px; }
+  .back { background: #64748b; }
+  .delete-btn { background: #ef4444; padding: 5px 10px; font-size: 14px; width: auto; margin-left: 5px; }
+  .edit-btn { background: #f59e0b; padding: 5px 10px; font-size: 14px; width: auto; }
+  .bill-card { background: #f8fafc; padding: 10px; border: 1px solid #e2e8f0; border-radius: 8px; margin-bottom: 8px; position: relative; }
   .due { color: #dc2626; font-weight: bold; }
   .paid { color: #16a34a; font-weight: bold; }
+  hr { border-top: 1px solid #eee; }
   </style>
 </head>
 <body>
@@ -25,7 +25,7 @@
   <h1>🧺 A1 DRYCLEANERS<br>ए1 ड्रायक्लिनर्स</h1>
   <button onclick="showAdd()">➕ Add Customer</button>
   <button onclick="showBill()">🧾 New Bill</button>
-  <button onclick="showList()">📋 View History</button>
+  <button onclick="showList()">📋 View History & Edit</button>
 </div>
 
 <div class="box" id="add" style="display:none">
@@ -47,10 +47,10 @@
 </div>
 
 <div class="box" id="list" style="display:none">
-  <h1>History</h1>
-  <div style="text-align:center; margin-bottom:10px;">
-    <button style="padding:8px; width:auto; font-size:14px;" onclick="loadCustomers()">Show Customers</button>
-    <button style="padding:8px; width:auto; font-size:14px;" onclick="loadBills()">Show Bills</button>
+  <h1>History & Records</h1>
+  <div style="text-align:center; margin-bottom:15px;">
+    <button style="padding:8px 15px; width:auto;" onclick="loadCustomers()">Customers</button>
+    <button style="padding:8px 15px; width:auto;" onclick="loadBills()">Bills</button>
   </div>
   <div id="listContent"></div>
   <button class="back" onclick="goHome()">⬅ Back</button>
@@ -67,78 +67,83 @@ function hideAll() { home.style.display = add.style.display = bill.style.display
 // --- CUSTOMERS ---
 function saveCustomer() {
   const customer = { marathi: nameMarathi.value, english: nameEnglish.value, mobile: mobile.value };
-  if (!customer.english || !customer.mobile) return alert("Fill English Name & Mobile");
-
-  // Fetch to RELATIVE path (works on cloud automatically)
-  fetch("/customers", {
-    method: "POST", headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(customer)
-  })
-  .then(res => res.json())
-  .then(() => {
-    alert("Customer Saved ✅");
-    nameMarathi.value = ""; nameEnglish.value = ""; mobile.value = "";
-    goHome();
-  });
+  if (!customer.english) return alert("Enter Name");
+  fetch("/customers", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(customer) })
+  .then(() => { alert("Saved ✅"); goHome(); });
 }
 
 function loadCustomerOptions() {
   billCustomer.innerHTML = "<option>Loading...</option>";
-  fetch("/customers")
-    .then(res => res.json())
-    .then(data => {
-      billCustomer.innerHTML = "<option value=''>Select Customer</option>";
-      data.forEach(c => {
-        // Store whole object in value for easy access
-        billCustomer.innerHTML += `<option value='${JSON.stringify(c)}'>${c.english}</option>`;
-      });
-    });
+  fetch("/customers").then(res => res.json()).then(data => {
+    billCustomer.innerHTML = "<option value=''>Select Customer</option>";
+    data.forEach(c => { billCustomer.innerHTML += `<option value='${JSON.stringify(c)}'>${c.english}</option>`; });
+  });
+}
+
+function deleteCustomer(id) {
+  if(!confirm("Delete this customer?")) return;
+  fetch("/customers/" + id, { method: "DELETE" }).then(() => loadCustomers());
+}
+
+function editCustomer(id, oldMar, oldEng, oldMob) {
+  const newMar = prompt("Update Marathi Name:", oldMar);
+  const newEng = prompt("Update English Name:", oldEng);
+  const newMob = prompt("Update Mobile:", oldMob);
+  if(newEng && newMob) {
+    fetch("/customers/" + id, { 
+      method: "PUT", headers: { "Content-Type": "application/json" }, 
+      body: JSON.stringify({ marathi: newMar, english: newEng, mobile: newMob }) 
+    }).then(() => loadCustomers());
+  }
 }
 
 // --- BILLS ---
 function saveBill() {
-  if(!billCustomer.value) return alert("Select a customer");
+  if(!billCustomer.value) return alert("Select Customer");
   const c = JSON.parse(billCustomer.value);
   const totalAmt = Number(total.value);
   const paidAmt = Number(paid.value);
-  
-  if(!totalAmt) return alert("Enter Amount");
-
   const due = totalAmt - paidAmt;
   const now = new Date().toLocaleString();
 
-  const billData = {
-    customerName: c.english,
-    customerMobile: c.mobile,
-    total: totalAmt,
-    paid: paidAmt,
-    due: due,
-    date: now
-  };
-
-  fetch("/bills", {
-    method: "POST", headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(billData)
-  })
-  .then(res => res.json())
-  .then(() => {
-    // WhatsApp Logic
-    const msg = `नमस्कार ${c.english},\nतुमचे कपडे तयार आहेत 🙏😊\nएकूण बिल: ₹${totalAmt}\nजमा: ₹${paidAmt}\nबाकी: ₹${due}\n\n– A-1 DRYCLEANERS`;
-    const whatsappURL = "https://wa.me/91" + c.mobile + "?text=" + encodeURIComponent(msg);
-    
-    // Clear inputs and redirect
-    total.value = ""; paid.value = "";
-    window.location.href = whatsappURL; 
+  fetch("/bills", { 
+    method: "POST", headers: { "Content-Type": "application/json" }, 
+    body: JSON.stringify({ customerName: c.english, customerMobile: c.mobile, total: totalAmt, paid: paidAmt, due: due, date: now }) 
+  }).then(() => {
+    const msg = `नमस्कार ${c.english},\nतुमचे कपडे तयार आहेत 🙏😊\nएकूण बिल: ₹${totalAmt}\nजमा: ₹${paidAmt}\nबाकी: ₹${due}`;
+    window.location.href = "https://wa.me/91" + c.mobile + "?text=" + encodeURIComponent(msg);
   });
 }
 
-// --- DISPLAY LISTS ---
+function deleteBill(id) {
+  if(!confirm("Delete this bill?")) return;
+  fetch("/bills/" + id, { method: "DELETE" }).then(() => loadBills());
+}
+
+function editBill(id, oldTotal, oldPaid) {
+  const newTotal = prompt("New Total Amount:", oldTotal);
+  const newPaid = prompt("New Paid Amount:", oldPaid);
+  if(newTotal !== null && newPaid !== null) {
+    const due = Number(newTotal) - Number(newPaid);
+    fetch("/bills/" + id, {
+      method: "PUT", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ total: newTotal, paid: newPaid, due: due })
+    }).then(() => loadBills());
+  }
+}
+
+// --- DISPLAY ---
 function loadCustomers() {
   listContent.innerHTML = "Loading...";
   fetch("/customers").then(res => res.json()).then(data => {
     listContent.innerHTML = "";
     data.forEach(c => {
-      listContent.innerHTML += `<p><b>${c.marathi}</b><br>${c.english}<br>📞 ${c.mobile}</p><hr>`;
+      listContent.innerHTML += `
+        <div style="margin-bottom:10px; border-bottom:1px solid #eee; padding-bottom:5px;">
+          <b>${c.english}</b> (${c.marathi})<br>📞 ${c.mobile}<br>
+          <button class="edit-btn" onclick="editCustomer('${c._id}', '${c.marathi}', '${c.english}', '${c.mobile}')">Edit</button>
+          <button class="delete-btn" onclick="deleteCustomer('${c._id}')">Delete</button>
+        </div>`;
     });
   });
 }
@@ -151,9 +156,11 @@ function loadBills() {
       listContent.innerHTML += `
         <div class="bill-card">
           <b>${b.customerName}</b><br>
+          <span style="color:#555">${b.date}</span><br>
           Total: ₹${b.total} | Paid: ₹${b.paid}<br>
-          <span class="${b.due > 0 ? 'due' : 'paid'}">Due: ₹${b.due}</span><br>
-          <small style="color:#666">${b.date}</small>
+          <span class="${b.due > 0 ? 'due' : 'paid'}">Due: ₹${b.due}</span><br><br>
+          <button class="edit-btn" onclick="editBill('${b._id}', '${b.total}', '${b.paid}')">Edit Amount</button>
+          <button class="delete-btn" onclick="deleteBill('${b._id}')">Delete</button>
         </div>`;
     });
   });
