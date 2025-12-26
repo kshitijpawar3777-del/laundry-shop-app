@@ -28,17 +28,24 @@
   /* Search Bar */
   #searchBar { border: 2px solid #2563eb; background-color: #f0f9ff; font-weight: bold; }
   
-  /* Highlight Labels */
   label { font-size: 14px; font-weight: bold; color: #555; display:block; margin-bottom: 5px;}
   </style>
 </head>
 <body>
 
-<div class="box" id="home">
+<div class="box" id="login">
+  <h1>🔐 Login / लॉग इन</h1>
+  <p style="text-align:center; color:#555;">Please enter PIN to access</p>
+  <input type="password" id="pinInput" placeholder="Enter PIN (e.g. 1234)">
+  <button class="primary" onclick="checkLogin()">Unlock App</button>
+</div>
+
+<div class="box" id="home" style="display:none">
   <h1>🧺 A1 DRYCLEANERS<br>ए1 ड्रायक्लिनर्स</h1>
   <button class="primary" onclick="showAdd()">➕ Add Customer</button>
   <button class="primary" onclick="showBill()">🧾 New Bill</button>
   <button class="primary" onclick="showList()">📋 View History & Search</button>
+  <button class="back" onclick="logout()">🔒 Lock App</button>
 </div>
 
 <div class="box" id="add" style="display:none">
@@ -88,23 +95,46 @@
 </div>
 
 <script>
+// --- PASSWORD CONFIGURATION ---
+const APP_PASSWORD = "1234"; // <--- CHANGE YOUR PASSWORD HERE
+
 let allCustomers = [];
 let allBills = [];
 let currentMode = "";
+
+// --- LOGIN LOGIC ---
+function checkLogin() {
+  const input = pinInput.value;
+  if(input === APP_PASSWORD) {
+    login.style.display = "none";
+    home.style.display = "block";
+    pinInput.value = ""; // clear password
+  } else {
+    alert("❌ Wrong Password / चुकीचा पासवर्ड");
+    pinInput.value = "";
+  }
+}
+
+function logout() {
+  hideAll();
+  login.style.display = "block";
+}
 
 // --- NAVIGATION ---
 function showAdd() { hideAll(); add.style.display = "block"; }
 function showBill() { 
   hideAll(); bill.style.display = "block"; 
   loadCustomerOptions(); 
-  serviceType.value = "Manual"; // Reset
+  serviceType.value = "Manual"; 
   weightBox.style.display = "none";
   weight.value = "";
-  total.readOnly = false; // Allow manual edit
+  total.readOnly = false;
 }
 function showList() { hideAll(); list.style.display = "block"; loadCustomers(); }
 function goHome() { hideAll(); home.style.display = "block"; }
-function hideAll() { home.style.display = add.style.display = bill.style.display = list.style.display = "none"; }
+function hideAll() { 
+  login.style.display = home.style.display = add.style.display = bill.style.display = list.style.display = "none"; 
+}
 
 // --- LOGIC: CALCULATE PRICE ---
 function calculateTotal() {
@@ -115,12 +145,9 @@ function calculateTotal() {
     weightBox.style.display = "none";
     total.readOnly = false;
     total.placeholder = "Enter Total Amount";
-    // Do not clear total value so user can type freely
-  } 
-  else {
+  } else {
     weightBox.style.display = "block";
-    total.readOnly = true; // Lock total field
-    
+    total.readOnly = true; 
     if (w) {
       if (type === "Wash Only") total.value = Math.round(w * 80);
       if (type === "Wash + Iron") total.value = Math.round(w * 100);
@@ -193,8 +220,6 @@ function processBill(sendWhatsApp) {
     body: JSON.stringify(billData) 
   }).then(() => {
     total.value = ""; paid.value = ""; weight.value = "";
-    
-    // WhatsApp Logic
     if (sendWhatsApp) {
       let extraInfo = "";
       if (sType !== "Manual") {
@@ -260,12 +285,10 @@ function renderList(data) {
     });
   } else {
     data.forEach(b => {
-      // Show Kg details if available
       let detailText = "";
       if (b.serviceType && b.serviceType !== "Manual") {
         detailText = `<br><span style="color:#2563eb; font-size:14px;">🧴 ${b.weight} Kg - ${b.serviceType}</span>`;
       }
-
       listContent.innerHTML += `
         <div class="bill-card">
           <b>${b.customerName}</b><br>
