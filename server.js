@@ -20,9 +20,12 @@ const CustomerSchema = new mongoose.Schema({
 });
 const Customer = mongoose.model("Customer", CustomerSchema);
 
+// Updated Bill Schema with Weight and Service Type
 const BillSchema = new mongoose.Schema({
   customerName: String,
   customerMobile: String,
+  serviceType: String, // e.g., "Wash Only", "Wash + Iron", or "Manual"
+  weight: Number,      // Weight in Kg
   total: Number,
   paid: Number,
   due: Number,
@@ -32,7 +35,7 @@ const Bill = mongoose.model("Bill", BillSchema);
 
 // --- ROUTES ---
 
-// 1. CUSTOMERS (Add, Get, Update, Delete)
+// 1. CUSTOMERS
 app.post("/customers", async (req, res) => {
   try {
     const customer = new Customer(req.body);
@@ -60,7 +63,7 @@ app.delete("/customers/:id", async (req, res) => {
   } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
-// 2. BILLS (Add, Get, Update, Delete)
+// 2. BILLS
 app.post("/bills", async (req, res) => {
   try {
     const bill = new Bill(req.body);
