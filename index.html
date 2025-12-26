@@ -13,16 +13,24 @@
   button { width: 100%; padding: 15px; font-size: 16px; border-radius: 12px; border: none; color: white; cursor: pointer; margin-bottom: 12px; font-weight: 500; }
   button:active { transform: scale(0.98); }
   
-  .primary { background: #2563eb; } /* Blue for normal actions */
-  .whatsapp { background: #25D366; } /* Green for WhatsApp */
-  .back { background: #64748b; }    /* Grey for Back */
+  .primary { background: #2563eb; } 
+  .whatsapp { background: #25D366; } 
+  .back { background: #64748b; }
   .delete-btn { background: #ef4444; padding: 5px 10px; font-size: 14px; width: auto; margin-left: 5px; }
   .edit-btn { background: #f59e0b; padding: 5px 10px; font-size: 14px; width: auto; }
 
+  /* Cards */
   .bill-card { background: #f8fafc; padding: 10px; border: 1px solid #e2e8f0; border-radius: 8px; margin-bottom: 8px; position: relative; }
   .due { color: #dc2626; font-weight: bold; }
   .paid { color: #16a34a; font-weight: bold; }
   hr { border-top: 1px solid #eee; }
+
+  /* Search Bar Style */
+  #searchBar {
+    border: 2px solid #2563eb;
+    background-color: #f0f9ff;
+    font-weight: bold;
+  }
   </style>
 </head>
 <body>
@@ -31,7 +39,7 @@
   <h1>🧺 A1 DRYCLEANERS<br>ए1 ड्रायक्लिनर्स</h1>
   <button class="primary" onclick="showAdd()">➕ Add Customer</button>
   <button class="primary" onclick="showBill()">🧾 New Bill</button>
-  <button class="primary" onclick="showList()">📋 View History & Edit</button>
+  <button class="primary" onclick="showList()">📋 View History & Search</button>
 </div>
 
 <div class="box" id="add" style="display:none">
@@ -51,25 +59,33 @@
   
   <button class="primary" onclick="processBill(false)">💾 Save Only</button>
   <button class="whatsapp" onclick="processBill(true)">💬 Save & WhatsApp</button>
-  
   <button class="back" onclick="goHome()">⬅ Back</button>
 </div>
 
 <div class="box" id="list" style="display:none">
-  <h1>History & Records</h1>
+  <h1>Records</h1>
+  
+  <input id="searchBar" placeholder="🔍 Search Name / नाव शोधा..." onkeyup="filterData()">
+
   <div style="text-align:center; margin-bottom:15px;">
     <button class="primary" style="padding:8px 15px; width:auto;" onclick="loadCustomers()">Customers</button>
     <button class="primary" style="padding:8px 15px; width:auto;" onclick="loadBills()">Bills</button>
   </div>
+  
   <div id="listContent"></div>
   <button class="back" onclick="goHome()">⬅ Back</button>
 </div>
 
 <script>
+// --- GLOBAL DATA (For Search) ---
+let allCustomers = [];
+let allBills = [];
+let currentMode = ""; // 'customers' or 'bills'
+
 // --- NAVIGATION ---
 function showAdd() { hideAll(); add.style.display = "block"; }
 function showBill() { hideAll(); bill.style.display = "block"; loadCustomerOptions(); }
-function showList() { hideAll(); list.style.display = "block"; loadBills(); }
+function showList() { hideAll(); list.style.display = "block"; loadCustomers(); } // Default to customers
 function goHome() { hideAll(); home.style.display = "block"; }
 function hideAll() { home.style.display = add.style.display = bill.style.display = list.style.display = "none"; }
 
@@ -90,7 +106,7 @@ function loadCustomerOptions() {
 }
 
 function deleteCustomer(id) {
-  if(!confirm("Delete this customer?")) return;
+  if(!confirm("Delete?")) return;
   fetch("/customers/" + id, { method: "DELETE" }).then(() => loadCustomers());
 }
 
@@ -98,7 +114,7 @@ function editCustomer(id, oldMar, oldEng, oldMob) {
   const newMar = prompt("Update Marathi Name:", oldMar);
   const newEng = prompt("Update English Name:", oldEng);
   const newMob = prompt("Update Mobile:", oldMob);
-  if(newEng && newMob) {
+  if(newEng) {
     fetch("/customers/" + id, { 
       method: "PUT", headers: { "Content-Type": "application/json" }, 
       body: JSON.stringify({ marathi: newMar, english: newEng, mobile: newMob }) 
@@ -106,7 +122,7 @@ function editCustomer(id, oldMar, oldEng, oldMob) {
   }
 }
 
-// --- BILLS (UPDATED LOGIC) ---
+// --- BILLS ---
 function processBill(sendWhatsApp) {
   if(!billCustomer.value) return alert("Select Customer");
   const c = JSON.parse(billCustomer.value);
@@ -122,31 +138,25 @@ function processBill(sendWhatsApp) {
     method: "POST", headers: { "Content-Type": "application/json" }, 
     body: JSON.stringify({ customerName: c.english, customerMobile: c.mobile, total: totalAmt, paid: paidAmt, due: due, date: now }) 
   }).then(() => {
-    
-    // Clear inputs immediately
-    total.value = ""; 
-    paid.value = "";
-
+    total.value = ""; paid.value = "";
     if (sendWhatsApp) {
-      // Logic for WhatsApp Button
       const msg = `नमस्कार ${c.english},\nतुमचे कपडे तयार आहेत 🙏😊\nएकूण बिल: ₹${totalAmt}\nजमा: ₹${paidAmt}\nबाकी: ₹${due}`;
       window.location.href = "https://wa.me/91" + c.mobile + "?text=" + encodeURIComponent(msg);
     } else {
-      // Logic for Save Only Button
-      alert("Bill Saved Successfully! ✅");
+      alert("Bill Saved ✅");
     }
   });
 }
 
 function deleteBill(id) {
-  if(!confirm("Delete this bill?")) return;
+  if(!confirm("Delete?")) return;
   fetch("/bills/" + id, { method: "DELETE" }).then(() => loadBills());
 }
 
 function editBill(id, oldTotal, oldPaid) {
-  const newTotal = prompt("New Total Amount:", oldTotal);
-  const newPaid = prompt("New Paid Amount:", oldPaid);
-  if(newTotal !== null && newPaid !== null) {
+  const newTotal = prompt("Total:", oldTotal);
+  const newPaid = prompt("Paid:", oldPaid);
+  if(newTotal !== null) {
     const due = Number(newTotal) - Number(newPaid);
     fetch("/bills/" + id, {
       method: "PUT", headers: { "Content-Type": "application/json" },
@@ -155,11 +165,54 @@ function editBill(id, oldTotal, oldPaid) {
   }
 }
 
-// --- DISPLAY ---
+// --- LOAD DATA & SEARCH LOGIC ---
+
 function loadCustomers() {
+  currentMode = "customers";
+  searchBar.value = ""; // Clear search
   listContent.innerHTML = "Loading...";
   fetch("/customers").then(res => res.json()).then(data => {
-    listContent.innerHTML = "";
+    allCustomers = data; // Store data globally
+    renderList(allCustomers);
+  });
+}
+
+function loadBills() {
+  currentMode = "bills";
+  searchBar.value = ""; // Clear search
+  listContent.innerHTML = "Loading...";
+  fetch("/bills").then(res => res.json()).then(data => {
+    allBills = data; // Store data globally
+    renderList(allBills);
+  });
+}
+
+function filterData() {
+  const term = searchBar.value.toLowerCase();
+  
+  if (currentMode === "customers") {
+    // Search in English Name OR Marathi Name OR Mobile
+    const filtered = allCustomers.filter(c => 
+      (c.english && c.english.toLowerCase().includes(term)) || 
+      (c.marathi && c.marathi.includes(term)) || 
+      (c.mobile && c.mobile.includes(term))
+    );
+    renderList(filtered);
+  } else {
+    // Search Bills by Name or Date
+    const filtered = allBills.filter(b => 
+      (b.customerName && b.customerName.toLowerCase().includes(term)) ||
+      (b.date && b.date.includes(term))
+    );
+    renderList(filtered);
+  }
+}
+
+function renderList(data) {
+  listContent.innerHTML = "";
+  if(data.length === 0) { listContent.innerHTML = "<p style='text-align:center'>No results found</p>"; return; }
+
+  if (currentMode === "customers") {
     data.forEach(c => {
       listContent.innerHTML += `
         <div style="margin-bottom:10px; border-bottom:1px solid #eee; padding-bottom:5px;">
@@ -168,13 +221,7 @@ function loadCustomers() {
           <button class="delete-btn" onclick="deleteCustomer('${c._id}')">Delete</button>
         </div>`;
     });
-  });
-}
-
-function loadBills() {
-  listContent.innerHTML = "Loading...";
-  fetch("/bills").then(res => res.json()).then(data => {
-    listContent.innerHTML = "";
+  } else {
     data.forEach(b => {
       listContent.innerHTML += `
         <div class="bill-card">
@@ -186,7 +233,7 @@ function loadBills() {
           <button class="delete-btn" onclick="deleteBill('${b._id}')">Delete</button>
         </div>`;
     });
-  });
+  }
 }
 </script>
 </body>
