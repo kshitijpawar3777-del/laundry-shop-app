@@ -7,9 +7,12 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+// --- 1. SERVE FILES (Updated to work for both Public & Root folders) ---
+// Try serving from 'public' folder first, then current folder
 app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(__dirname));
 
-// UPDATE THIS WITH YOUR OWN MONGO URL IF NEEDED
+// MongoDB Connection
 mongoose.connect("mongodb+srv://a1drycleaners:VaHfDU0CNVTMdyFR@cluster0.2vgwdtz.mongodb.net/?appName=Cluster0")
   .then(() => console.log("MongoDB Connected"))
   .catch(err => console.log(err));
@@ -50,7 +53,7 @@ app.post("/customers", async (req, res) => {
   } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
-// NEW: Edit Customer
+// ✅ UPDATE Customer (Fixes the 404 Error)
 app.put("/customers/:id", async (req, res) => {
   try {
     await Customer.findByIdAndUpdate(req.params.id, req.body);
@@ -58,9 +61,16 @@ app.put("/customers/:id", async (req, res) => {
   } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
+// ✅ DELETE Customer
+app.delete("/customers/:id", async (req, res) => {
+  try {
+    await Customer.findByIdAndDelete(req.params.id);
+    res.json({ success: true });
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
 // 2. BILLS
 app.get("/bills", async (req, res) => {
-  // Optional: Filter by mobile if query param provided
   const filter = req.query.mobile ? { customerMobile: req.query.mobile } : {};
   const bills = await Bill.find(filter).sort({_id: -1}).limit(100); 
   res.json(bills);
@@ -74,7 +84,7 @@ app.post("/bills", async (req, res) => {
   } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
-// NEW: Edit Bill (e.g. update paid amount)
+// ✅ UPDATE Bill
 app.put("/bills/:id", async (req, res) => {
   try {
     await Bill.findByIdAndUpdate(req.params.id, req.body);
@@ -82,8 +92,15 @@ app.put("/bills/:id", async (req, res) => {
   } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
-app.get(/(.*)/, (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+// --- CATCH ALL (Serves index.html for any unknown route) ---
+app.get("*", (req, res) => {
+  // Try to find index.html in public, if not found, try root
+  const publicPath = path.join(__dirname, 'public', 'index.html');
+  const rootPath = path.join(__dirname, 'index.html');
+  
+  res.sendFile(publicPath, (err) => {
+    if (err) res.sendFile(rootPath);
+  });
 });
 
 const PORT = process.env.PORT || 5000;
