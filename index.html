@@ -11,8 +11,6 @@
 
     <style>
         body { font-family: 'Plus Jakarta Sans', sans-serif; }
-        
-        /* Mesh Gradient Background */
         .mesh-light {
             background-color: #f8fafc;
             background-image: 
@@ -20,15 +18,10 @@
                 radial-gradient(at 100% 0%, hsla(220,100%,96%,1) 0, transparent 50%), 
                 radial-gradient(at 100% 100%, hsla(200,100%,96%,1) 0, transparent 50%);
         }
-
-        /* Animations */
         .animate-float { animation: float 6s ease-in-out infinite; }
         @keyframes float { 0% { transform: translateY(0px); } 50% { transform: translateY(-10px); } 100% { transform: translateY(0px); } }
-        
-        /* Hide Scrollbar */
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-        
         .progress-ring__circle { transition: stroke-dashoffset 1s ease-in-out; transform: rotate(-90deg); transform-origin: 50% 50%; }
     </style>
 </head>
@@ -40,20 +33,16 @@
                 <div class="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center text-white font-bold text-lg shadow-lg shadow-blue-500/30">A1</div>
                 <div>
                     <div class="text-lg font-extrabold tracking-tight text-slate-900">A1 Drycleaners</div>
-                    <div class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Shop Manager v2.0</div>
+                    <div class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Shop Manager v2.1</div>
                 </div>
             </div>
-            <div class="flex gap-4">
-                 <button onclick="loadBills()" class="hidden md:block text-sm font-bold text-slate-500 hover:text-blue-600 transition">View History</button>
-                 <div class="w-8 h-8 rounded-full bg-slate-100 border border-slate-200 flex items-center justify-center font-bold text-xs">A</div>
-            </div>
+            <div class="w-8 h-8 rounded-full bg-slate-100 border border-slate-200 flex items-center justify-center font-bold text-xs">A</div>
         </div>
     </nav>
 
     <main class="max-w-7xl mx-auto px-6 pt-32 pb-20 grid lg:grid-cols-2 gap-16 items-start">
         
         <div class="flex flex-col items-start z-10">
-            
             <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white border border-slate-200 text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-6 shadow-sm">
                 <span class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
                 Shop is Open
@@ -74,7 +63,7 @@
                 <div id="formBill" class="p-4 space-y-4">
                     <div class="relative">
                         <i class="fa-solid fa-magnifying-glass absolute left-4 top-4 text-slate-400"></i>
-                        <input id="customerSearch" onkeyup="filterCustomers()" placeholder="Search Customer (Name or Mobile)..." class="w-full pl-10 p-4 bg-slate-50 rounded-xl font-bold text-sm outline-none focus:ring-2 focus:ring-blue-100 transition">
+                        <input id="customerSearch" onkeyup="filterCustomers()" placeholder="Search Customer..." class="w-full pl-10 p-4 bg-slate-50 rounded-xl font-bold text-sm outline-none focus:ring-2 focus:ring-blue-100 transition">
                     </div>
                     
                     <div id="customerList" class="flex gap-2 overflow-x-auto pb-2 no-scrollbar h-12">
@@ -93,9 +82,14 @@
                         </div>
                     </div>
 
-                    <button onclick="saveBill()" class="w-full bg-slate-900 text-white h-14 rounded-xl font-bold hover:bg-slate-800 transition flex items-center justify-center gap-2 shadow-lg shadow-slate-300/50 text-lg">
-                        <span>Save & WhatsApp</span> <i class="fa-brands fa-whatsapp"></i>
-                    </button>
+                    <div class="flex gap-3 pt-2">
+                        <button onclick="processBill('save')" class="flex-1 bg-slate-900 text-white h-14 rounded-xl font-bold hover:bg-slate-800 transition shadow-lg shadow-slate-300/50 text-sm">
+                            Save Only
+                        </button>
+                        <button onclick="processBill('send')" class="flex-1 bg-green-600 text-white h-14 rounded-xl font-bold hover:bg-green-700 transition shadow-lg shadow-green-500/30 text-sm flex items-center justify-center gap-2">
+                            <span>WhatsApp</span> <i class="fa-brands fa-whatsapp text-lg"></i>
+                        </button>
+                    </div>
                 </div>
 
                 <div id="formAdd" class="hidden p-4 space-y-4">
@@ -112,9 +106,7 @@
         </div>
 
         <div class="relative lg:h-[600px] flex items-center justify-center">
-            
             <div class="animate-float w-full max-w-md bg-white/80 backdrop-blur-xl rounded-[2.5rem] shadow-2xl ring-1 ring-white/60 p-8 z-20">
-                
                 <div class="flex justify-between items-start mb-8">
                     <div>
                         <span class="text-[10px] font-bold uppercase tracking-wider bg-green-100 text-green-700 px-3 py-1 rounded-full">Live Stats</span>
@@ -152,7 +144,6 @@
                         <p class="text-xs text-slate-400 italic pl-1">Loading...</p>
                     </div>
                 </div>
-
             </div>
             
             <div class="absolute top-0 right-0 w-64 h-64 bg-blue-200 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob"></div>
@@ -165,7 +156,6 @@
         let allCustomers = [];
         let selectedCustomer = null;
 
-        // --- TAB SWITCHER ---
         function switchTab(tab) {
             if(tab === 'bill') {
                 document.getElementById('formBill').classList.remove('hidden');
@@ -184,13 +174,9 @@
             }
         }
 
-        // --- 1. LOAD DATA ---
         async function init() {
-            // Load Customers
             const cRes = await fetch('/customers');
             allCustomers = await cRes.json();
-            
-            // Load Dashboard Stats
             loadStats();
         }
 
@@ -206,7 +192,7 @@
                 paid += b.paid;
                 due += b.due;
 
-                if(i < 5) { // Show last 5
+                if(i < 5) {
                     historyHTML += `
                     <div class="flex justify-between items-center p-3 bg-white rounded-xl border border-slate-100 shadow-sm">
                         <div class="flex items-center gap-3">
@@ -224,19 +210,16 @@
                 }
             });
 
-            // Update DOM
             document.getElementById('statTotal').innerText = `₹${total}`;
             document.getElementById('statPaid').innerText = `₹${paid}`;
             document.getElementById('statDue').innerText = `₹${due}`;
             document.getElementById('historyList').innerHTML = historyHTML;
 
-            // Circle Animation (552 is circumference)
             const paidPercentage = total > 0 ? (paid / total) : 0;
             const offset = 552 - (paidPercentage * 552);
             document.getElementById('revenueCircle').style.strokeDashoffset = offset;
         }
 
-        // --- 2. CUSTOMER SEARCH ---
         function filterCustomers() {
             const query = document.getElementById('customerSearch').value.toLowerCase();
             const list = document.getElementById('customerList');
@@ -264,13 +247,13 @@
             document.getElementById('customerList').innerHTML = `<span class="text-xs font-bold text-green-600 bg-green-50 px-3 py-1 rounded-full border border-green-100">Selected: ${c.mobile}</span>`;
         }
 
-        // --- 3. ACTIONS ---
-        function saveBill() {
+        // --- MODIFIED SAVE FUNCTION FOR 2 BUTTONS ---
+        function processBill(action) {
             if(!selectedCustomer) return alert("Please select a customer first!");
             const total = Number(document.getElementById('total').value);
             const paid = Number(document.getElementById('paid').value);
             
-            if(!total) return alert("Please enter amount");
+            if(!total) return alert("Please enter total amount");
 
             const billData = {
                 customerName: selectedCustomer.english,
@@ -285,9 +268,22 @@
                 method: "POST", headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(billData)
             }).then(() => {
-                // WhatsApp
-                const msg = `*A1 DRYCLEANERS INVOICE* 🧺\n\nHello ${selectedCustomer.english},\nYour clothes are ready!\n\n💰 Total: ₹${total}\n✅ Paid: ₹${paid}\n❗ Balance: ₹${total - paid}\n\nThank you! 🙏`;
-                window.location.href = `https://wa.me/91${selectedCustomer.mobile}?text=${encodeURIComponent(msg)}`;
+                if (action === 'send') {
+                    // WhatsApp Logic
+                    const msg = `*A1 DRYCLEANERS INVOICE* 🧺\n\nHello ${selectedCustomer.english},\nYour clothes are ready!\n\n💰 Total: ₹${total}\n✅ Paid: ₹${paid}\n❗ Balance: ₹${total - paid}\n\nThank you! 🙏`;
+                    window.location.href = `https://wa.me/91${selectedCustomer.mobile}?text=${encodeURIComponent(msg)}`;
+                } else {
+                    // Save Only Logic
+                    alert("Bill Saved Successfully!");
+                    // Clear Fields
+                    document.getElementById('total').value = "";
+                    document.getElementById('paid').value = "";
+                    document.getElementById('customerSearch').value = "";
+                    document.getElementById('customerList').innerHTML = '<span class="text-xs font-bold text-slate-400 self-center">Start typing...</span>';
+                    selectedCustomer = null;
+                    // Refresh Dashboard Stats Immediately
+                    loadStats();
+                }
             });
         }
 
@@ -308,7 +304,6 @@
             });
         }
 
-        // Run
         init();
     </script>
 </body>
