@@ -24,21 +24,12 @@
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
         .progress-ring__circle { transition: stroke-dashoffset 1s ease-in-out; transform: rotate(-90deg); transform-origin: 50% 50%; }
 
-        /* --- FIXED PRINT STYLES --- */
+        /* RECEIPT PRINT STYLES */
         @media print {
-            body * { visibility: hidden; } /* Hide everything */
-            #receiptArea { 
-                display: block !important; /* FORCE SHOW */
-                visibility: visible; 
-                position: absolute; 
-                left: 0; 
-                top: 0; 
-                width: 100%; 
-                padding: 0;
-                margin: 0;
-            }
-            #receiptArea * { visibility: visible; } /* Show receipt content */
-            .no-print { display: none !important; } /* Double ensure nav/buttons hide */
+            body * { visibility: hidden; }
+            #receiptArea, #receiptArea * { visibility: visible; }
+            #receiptArea { position: absolute; left: 0; top: 0; width: 100%; padding: 20px; background: white; color: black; }
+            .no-print { display: none !important; }
         }
     </style>
 </head>
@@ -50,7 +41,7 @@
                 <div class="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center text-white font-bold text-lg shadow-lg shadow-blue-500/30">A1</div>
                 <div>
                     <div class="text-lg font-extrabold tracking-tight text-slate-900">A1 Drycleaners</div>
-                    <div class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Manager v3.1</div>
+                    <div class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Manager v3.0</div>
                 </div>
             </div>
             
@@ -79,7 +70,7 @@
             </div>
 
             <h1 class="text-5xl lg:text-6xl font-extrabold tracking-tight text-slate-900 mb-6 leading-[1.1]">
-                Smart Billing <br>
+                Auto Pricing <br>
                 <span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600"> & Instant Invoices.</span>
             </h1>
 
@@ -128,20 +119,12 @@
                         </div>
                     </div>
 
-                    <div class="grid grid-cols-3 gap-2 pt-2">
-                        <button onclick="processBill('save')" class="bg-slate-200 text-slate-700 h-14 rounded-xl font-bold hover:bg-slate-300 transition text-xs flex flex-col items-center justify-center gap-1">
-                            <i class="fa-solid fa-save text-lg"></i> Save
-                        </button>
-                        
-                        <button onclick="processBill('print')" class="bg-slate-900 text-white h-14 rounded-xl font-bold hover:bg-slate-800 transition text-xs flex flex-col items-center justify-center gap-1 shadow-lg shadow-slate-300/50">
-                            <i class="fa-solid fa-print text-lg"></i> Print
-                        </button>
-                        
-                        <button onclick="processBill('send')" class="bg-green-600 text-white h-14 rounded-xl font-bold hover:bg-green-700 transition text-xs flex flex-col items-center justify-center gap-1 shadow-lg shadow-green-500/30">
-                            <i class="fa-brands fa-whatsapp text-lg"></i> WhatsApp
+                    <div class="flex gap-3 pt-2">
+                        <button onclick="processBill('save')" class="flex-1 bg-slate-900 text-white h-14 rounded-xl font-bold hover:bg-slate-800 transition shadow-lg shadow-slate-300/50 text-sm">Save & Print</button>
+                        <button onclick="processBill('send')" class="flex-1 bg-green-600 text-white h-14 rounded-xl font-bold hover:bg-green-700 transition shadow-lg shadow-green-500/30 text-sm flex items-center justify-center gap-2">
+                            <span>WhatsApp</span> <i class="fa-brands fa-whatsapp text-lg"></i>
                         </button>
                     </div>
-
                 </div>
 
                 <div id="formAdd" class="hidden p-4 space-y-4">
@@ -203,23 +186,24 @@
     </main>
 
     <div id="receiptArea" class="hidden">
-        <div class="p-8 max-w-[300px] mx-auto text-center font-mono text-black">
-            <h1 class="text-xl font-bold mb-1">A1 Drycleaners</h1>
-            <p class="text-xs mb-2">Pune, Maharashtra</p>
-            <div class="border-b-2 border-dashed border-black my-2"></div>
+        <div class="text-center font-mono">
+            <h1 class="text-2xl font-bold">A1 Drycleaners</h1>
+            <p class="text-sm">Best Laundry Service in Town</p>
+            <p class="text-sm mb-4">Pune, Maharashtra</p>
+            <hr class="border-black border-dashed mb-4">
             
-            <div class="flex justify-between text-xs mb-1">
+            <div class="flex justify-between text-sm mb-2">
                 <span>Date:</span>
                 <span id="recDate"></span>
             </div>
-            <div class="flex justify-between text-xs mb-3">
+            <div class="flex justify-between text-sm mb-4">
                 <span>Customer:</span>
                 <span id="recName" class="font-bold"></span>
             </div>
 
-            <table class="w-full text-left text-xs mb-3">
+            <table class="w-full text-left text-sm mb-4">
                 <thead>
-                    <tr class="border-b border-black">
+                    <tr class="border-b border-black border-dashed">
                         <th class="py-1">Item</th>
                         <th class="text-right">Qty</th>
                         <th class="text-right">Amt</th>
@@ -227,30 +211,30 @@
                 </thead>
                 <tbody>
                     <tr>
-                        <td class="py-1" id="recService"></td>
-                        <td class="text-right" id="recWeight"></td>
-                        <td class="text-right" id="recTotal"></td>
+                        <td class="py-2" id="recService">Wash</td>
+                        <td class="text-right" id="recWeight">0 kg</td>
+                        <td class="text-right font-bold" id="recTotal">₹0</td>
                     </tr>
                 </tbody>
             </table>
 
-            <div class="border-b-2 border-dashed border-black my-2"></div>
+            <hr class="border-black border-dashed mb-2">
             
-            <div class="flex justify-between font-bold text-sm">
-                <span>TOTAL:</span>
-                <span id="recFinalTotal"></span>
+            <div class="flex justify-between font-bold text-lg">
+                <span>Total:</span>
+                <span id="recFinalTotal">₹0</span>
             </div>
-            <div class="flex justify-between text-xs mt-1">
+            <div class="flex justify-between text-sm">
                 <span>Paid:</span>
-                <span id="recPaid"></span>
+                <span id="recPaid">₹0</span>
             </div>
-            <div class="flex justify-between text-xs mt-1">
-                <span>Due:</span>
-                <span id="recDue"></span>
+            <div class="flex justify-between text-sm mb-4">
+                <span>Balance Due:</span>
+                <span id="recDue">₹0</span>
             </div>
 
-            <div class="border-b-2 border-dashed border-black my-4"></div>
-            <p class="text-[10px] text-center">Thank you! Visit Again.</p>
+            <hr class="border-black border-dashed mb-4">
+            <p class="text-xs text-center">Thank you for visiting!<br>Please come again.</p>
         </div>
     </div>
 
@@ -269,15 +253,17 @@
             toggleSettings();
         }
 
+        // --- NEW: AUTO CALCULATION LOGIC ---
         function calculateTotal() {
             const weight = parseFloat(document.getElementById('weight').value) || 0;
             const rate = parseInt(document.getElementById('serviceType').value);
-            const total = Math.ceil(weight * rate);
+            const total = Math.ceil(weight * rate); // Round up to nearest integer
             document.getElementById('total').value = total;
         }
 
-        // --- PRINT FUNCTION ---
+        // --- NEW: INVOICE GENERATION ---
         function printInvoice(bill) {
+            // 1. Populate Receipt Data
             document.getElementById('recDate').innerText = bill.date.split(',')[0];
             document.getElementById('recName').innerText = bill.customerName;
             document.getElementById('recService').innerText = bill.serviceType || "Laundry";
@@ -286,9 +272,9 @@
             document.getElementById('recFinalTotal').innerText = '₹' + bill.total;
             document.getElementById('recPaid').innerText = '₹' + bill.paid;
             document.getElementById('recDue').innerText = '₹' + bill.due;
-            
-            // Wait for DOM to update then print
-            setTimeout(() => window.print(), 100);
+
+            // 2. Trigger Print
+            window.print();
         }
 
         function switchTab(tab) {
@@ -318,6 +304,7 @@
         async function loadStats() {
             const bRes = await fetch('/bills');
             const bills = await bRes.json();
+            
             let total = 0, paid = 0, due = 0;
             let historyHTML = '';
 
@@ -325,7 +312,9 @@
                 total += b.total;
                 paid += b.paid;
                 due += b.due;
+
                 if(i < 5) {
+                    // Added Print Button in History
                     historyHTML += `
                     <div class="flex justify-between items-center p-3 bg-white rounded-xl border border-slate-100 shadow-sm group">
                         <div class="flex items-center gap-3">
@@ -352,6 +341,7 @@
             document.getElementById('statPaid').innerText = `₹${paid}`;
             document.getElementById('statDue').innerText = `₹${due}`;
             document.getElementById('historyList').innerHTML = historyHTML;
+
             const paidPercentage = total > 0 ? (paid / total) : 0;
             document.getElementById('revenueCircle').style.strokeDashoffset = 552 - (paidPercentage * 552);
         }
@@ -359,7 +349,7 @@
         function filterCustomers() {
             const query = document.getElementById('customerSearch').value.toLowerCase();
             const list = document.getElementById('customerList');
-            if(query.length < 1) { list.innerHTML = '<span class="text-xs font-bold text-slate-400 self-center">Start typing...</span>'; return; }
+            if(query.length < 1) { list.innerHTML = '<span class="text-xs font-bold text-slate-400 self-center">Type to search...</span>'; return; }
             const matches = allCustomers.filter(c => c.english.toLowerCase().includes(query) || c.mobile.includes(query));
             list.innerHTML = '';
             matches.slice(0, 5).forEach(c => {
@@ -385,7 +375,7 @@
             const serviceVal = document.getElementById('serviceType').value;
             const serviceName = serviceVal === "80" ? "Wash Only" : "Wash + Iron";
             
-            if(!total) return alert("Enter weight/amount");
+            if(!total) return alert("Enter weight or amount");
 
             const billData = {
                 customerName: selectedCustomer.english,
@@ -393,8 +383,8 @@
                 total: total,
                 paid: paid,
                 due: total - paid,
-                weight: weight,
-                serviceType: serviceName,
+                weight: weight,          // Saving Weight
+                serviceType: serviceName, // Saving Service Name
                 date: new Date().toLocaleString()
             };
 
@@ -403,26 +393,21 @@
                 if (action === 'send') {
                     const msg = `*A1 DRYCLEANERS INVOICE* 🧺\n\nHello ${selectedCustomer.english},\nYour clothes are ready!\n\n⚖️ Weight: ${weight} kg (${serviceName})\n💰 Total: ₹${total}\n✅ Paid: ₹${paid}\n❗ Balance: ₹${total - paid}\n\nThank you! 🙏`;
                     window.location.href = `https://wa.me/91${selectedCustomer.mobile}?text=${encodeURIComponent(msg)}`;
-                } else if (action === 'print') {
-                    printInvoice(billData);
-                    clearForm();
-                    loadStats();
                 } else {
-                    // Save Only
-                    alert("Saved Successfully!");
-                    clearForm();
+                    // Save & Print Flow
+                    if(confirm("Bill Saved! Do you want to print the invoice now?")) {
+                        printInvoice(billData);
+                    }
+                    
+                    // Clear Fields
+                    document.getElementById('total').value = "";
+                    document.getElementById('paid').value = "";
+                    document.getElementById('weight').value = "";
+                    document.getElementById('customerSearch').value = "";
+                    selectedCustomer = null;
                     loadStats();
                 }
             });
-        }
-        
-        function clearForm() {
-            document.getElementById('total').value = "";
-            document.getElementById('paid').value = "";
-            document.getElementById('weight').value = "";
-            document.getElementById('customerSearch').value = "";
-            document.getElementById('customerList').innerHTML = '<span class="text-xs font-bold text-slate-400 self-center">Start typing...</span>';
-            selectedCustomer = null;
         }
 
         function saveCustomer() {
