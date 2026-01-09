@@ -7,11 +7,10 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// --- 1. SERVE FILES (Updated to find index.html anywhere) ---
-// First try to find files in a 'public' folder
-app.use(express.static(path.join(__dirname, 'public')));
-// If not found, try to find them in the main (root) folder
+// --- 1. FIXED PATHS (Looks in Root AND Public) ---
+// This fixes the "Not Found" error by looking everywhere for index.html
 app.use(express.static(__dirname));
+app.use(express.static(path.join(__dirname, 'public')));
 
 // MongoDB Connection
 mongoose.connect("mongodb+srv://a1drycleaners:VaHfDU0CNVTMdyFR@cluster0.2vgwdtz.mongodb.net/?appName=Cluster0")
@@ -75,7 +74,6 @@ app.delete("/customers/:id", async (req, res) => {
 // 2. BILLS
 app.get("/bills", async (req, res) => {
   try {
-    // Optional: Filter by mobile
     const filter = req.query.mobile ? { customerMobile: req.query.mobile } : {};
     const bills = await Bill.find(filter).sort({_id: -1}).limit(100); 
     res.json(bills);
@@ -100,12 +98,12 @@ app.put("/bills/:id", async (req, res) => {
 
 // --- CATCH ALL (Serves index.html for any unknown route) ---
 app.get("*", (req, res) => {
-  // Try to find index.html in public, if not found, try root
-  const publicPath = path.join(__dirname, 'public', 'index.html');
   const rootPath = path.join(__dirname, 'index.html');
-  
-  res.sendFile(publicPath, (err) => {
-    if (err) res.sendFile(rootPath);
+  res.sendFile(rootPath, (err) => {
+    if (err) {
+      // If not found in root, try public folder
+      res.sendFile(path.join(__dirname, 'public', 'index.html'));
+    }
   });
 });
 
