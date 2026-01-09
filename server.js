@@ -7,10 +7,8 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// --- 1. SERVE FILES (Updated to work for both Public & Root folders) ---
-// Try serving from 'public' folder first, then current folder
+// Serve static files (HTML/CSS) from the "public" folder
 app.use(express.static(path.join(__dirname, 'public')));
-app.use(express.static(__dirname));
 
 // MongoDB Connection
 mongoose.connect("mongodb+srv://a1drycleaners:VaHfDU0CNVTMdyFR@cluster0.2vgwdtz.mongodb.net/?appName=Cluster0")
@@ -18,6 +16,8 @@ mongoose.connect("mongodb+srv://a1drycleaners:VaHfDU0CNVTMdyFR@cluster0.2vgwdtz.
   .catch(err => console.log(err));
 
 // --- SCHEMAS ---
+
+// Customer Schema
 const CustomerSchema = new mongoose.Schema({
   marathi: String,
   english: String,
@@ -25,26 +25,20 @@ const CustomerSchema = new mongoose.Schema({
 });
 const Customer = mongoose.model("Customer", CustomerSchema);
 
+// Bill Schema (NEW - Saves bills to cloud)
 const BillSchema = new mongoose.Schema({
   customerName: String,
   customerMobile: String,
   total: Number,
   paid: Number,
   due: Number,
-  weight: String,
-  serviceType: String,
   date: String
 });
 const Bill = mongoose.model("Bill", BillSchema);
 
 // --- ROUTES ---
 
-// 1. CUSTOMERS
-app.get("/customers", async (req, res) => {
-  const customers = await Customer.find().sort({_id: -1});
-  res.json(customers);
-});
-
+// 1. Add Customer
 app.post("/customers", async (req, res) => {
   try {
     const customer = new Customer(req.body);
@@ -53,29 +47,13 @@ app.post("/customers", async (req, res) => {
   } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
-// ✅ UPDATE Customer (Fixes the 404 Error)
-app.put("/customers/:id", async (req, res) => {
-  try {
-    await Customer.findByIdAndUpdate(req.params.id, req.body);
-    res.json({ success: true });
-  } catch (err) { res.status(500).json({ error: err.message }); }
+// 2. Get Customers
+app.get("/customers", async (req, res) => {
+  const customers = await Customer.find();
+  res.json(customers);
 });
 
-// ✅ DELETE Customer
-app.delete("/customers/:id", async (req, res) => {
-  try {
-    await Customer.findByIdAndDelete(req.params.id);
-    res.json({ success: true });
-  } catch (err) { res.status(500).json({ error: err.message }); }
-});
-
-// 2. BILLS
-app.get("/bills", async (req, res) => {
-  const filter = req.query.mobile ? { customerMobile: req.query.mobile } : {};
-  const bills = await Bill.find(filter).sort({_id: -1}).limit(100); 
-  res.json(bills);
-});
-
+// 3. Add Bill (NEW)
 app.post("/bills", async (req, res) => {
   try {
     const bill = new Bill(req.body);
@@ -84,25 +62,20 @@ app.post("/bills", async (req, res) => {
   } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
-// ✅ UPDATE Bill
-app.put("/bills/:id", async (req, res) => {
-  try {
-    await Bill.findByIdAndUpdate(req.params.id, req.body);
-    res.json({ success: true });
-  } catch (err) { res.status(500).json({ error: err.message }); }
+// 4. Get Bills (NEW)
+app.get("/bills", async (req, res) => {
+  // Sort by newest first (_id: -1)
+  const bills = await Bill.find().sort({_id: -1}).limit(50); 
+  res.json(bills);
 });
 
-// --- CATCH ALL (Serves index.html for any unknown route) ---
-app.get("*", (req, res) => {
-  // Try to find index.html in public, if not found, try root
-  const publicPath = path.join(__dirname, 'public', 'index.html');
-  const rootPath = path.join(__dirname, 'index.html');
-  
-  res.sendFile(publicPath, (err) => {
-    if (err) res.sendFile(rootPath);
-  });
+
+// Serve the HTML file for any other request
+app.get(/(.*)/, (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
+// Use the PORT provided by the cloud, or 5000 for local
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
