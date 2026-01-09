@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>A1 Drycleaners | Manager v6</title>
+    <title>A1 Drycleaners | Manager v7</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
@@ -40,7 +40,7 @@
             <div class="max-w-6xl mx-auto px-6 h-20 flex items-center justify-between">
                 <div class="flex items-center gap-3">
                     <div class="w-10 h-10 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-xl text-white flex items-center justify-center font-bold">A1</div>
-                    <div><h1 class="font-bold text-lg leading-tight">A1 Drycleaners</h1><p class="text-[10px] font-bold text-slate-400 uppercase">Version 6.0</p></div>
+                    <div><h1 class="font-bold text-lg leading-tight">A1 Drycleaners</h1><p class="text-[10px] font-bold text-slate-400 uppercase">Version 7.0</p></div>
                 </div>
                 <button onclick="logout()" class="w-9 h-9 rounded-full bg-red-50 text-red-500 hover:bg-red-500 hover:text-white transition"><i class="fa-solid fa-power-off"></i></button>
             </div>
@@ -64,40 +64,51 @@
                     <div id="custList" class="flex gap-2 overflow-x-auto pb-2 mb-4 no-scrollbar h-10"></div>
 
                     <div class="mb-4">
-                        <label class="text-[10px] font-bold text-slate-400 uppercase ml-1">Add Items</label>
+                        <label class="text-[10px] font-bold text-slate-400 uppercase ml-1">Add Items (Tap to enter Qty/Price)</label>
                         <div class="grid grid-cols-4 gap-2 mt-1">
-                            <button onclick="addItem('Shirt')" class="item-btn p-2 bg-blue-50 text-blue-700 rounded-lg text-xs font-bold border border-blue-100">+ Shirt</button>
-                            <button onclick="addItem('Pant')" class="item-btn p-2 bg-blue-50 text-blue-700 rounded-lg text-xs font-bold border border-blue-100">+ Pant</button>
-                            <button onclick="addItem('Saree')" class="item-btn p-2 bg-purple-50 text-purple-700 rounded-lg text-xs font-bold border border-purple-100">+ Saree</button>
-                            <button onclick="addItem('Suit')" class="item-btn p-2 bg-slate-100 text-slate-700 rounded-lg text-xs font-bold border border-slate-200">+ Suit</button>
-                            <button onclick="addItem('Dress')" class="item-btn p-2 bg-pink-50 text-pink-700 rounded-lg text-xs font-bold border border-pink-100">+ Dress</button>
-                            <button onclick="addItem('Kurta')" class="item-btn p-2 bg-orange-50 text-orange-700 rounded-lg text-xs font-bold border border-orange-100">+ Kurta</button>
-                            <button onclick="addItem('Sheet')" class="item-btn p-2 bg-gray-50 text-gray-700 rounded-lg text-xs font-bold border border-gray-200">+ Sheet</button>
-                            <button onclick="clearItems()" class="item-btn p-2 bg-red-50 text-red-500 rounded-lg text-xs font-bold border border-red-100"><i class="fa-solid fa-trash"></i> Clear</button>
+                            <button onclick="openItemModal('Shirt')" class="item-btn p-2 bg-blue-50 text-blue-700 rounded-lg text-xs font-bold border border-blue-100">+ Shirt</button>
+                            <button onclick="openItemModal('Pant')" class="item-btn p-2 bg-blue-50 text-blue-700 rounded-lg text-xs font-bold border border-blue-100">+ Pant</button>
+                            <button onclick="openItemModal('Saree')" class="item-btn p-2 bg-purple-50 text-purple-700 rounded-lg text-xs font-bold border border-purple-100">+ Saree</button>
+                            <button onclick="openItemModal('Suit')" class="item-btn p-2 bg-slate-100 text-slate-700 rounded-lg text-xs font-bold border border-slate-200">+ Suit</button>
+                            <button onclick="openItemModal('Dress')" class="item-btn p-2 bg-pink-50 text-pink-700 rounded-lg text-xs font-bold border border-pink-100">+ Dress</button>
+                            <button onclick="openItemModal('Kurta')" class="item-btn p-2 bg-orange-50 text-orange-700 rounded-lg text-xs font-bold border border-orange-100">+ Kurta</button>
+                            <button onclick="openItemModal('Sheet')" class="item-btn p-2 bg-gray-50 text-gray-700 rounded-lg text-xs font-bold border border-gray-200">+ Sheet</button>
+                            <button onclick="openItemModal('Other')" class="item-btn p-2 bg-slate-50 text-slate-700 rounded-lg text-xs font-bold border border-slate-200">+ Other</button>
                         </div>
-                        <input id="itemsDisplay" readonly placeholder="No items selected" class="w-full mt-2 p-3 bg-slate-50 text-slate-600 text-xs font-bold rounded-xl border-none outline-none">
+                        
+                        <div class="mt-3 bg-slate-50 rounded-xl p-3 border border-slate-100 min-h-[60px]">
+                            <p id="emptyCartMsg" class="text-xs text-slate-400 text-center py-2">No items added yet</p>
+                            <div id="cartList" class="space-y-2"></div>
+                        </div>
                     </div>
                     
                     <div class="bg-slate-50 p-4 rounded-2xl border border-slate-100 mb-4">
                         <div class="grid grid-cols-2 gap-3 mb-3">
                             <div>
                                 <label class="text-[10px] font-bold text-slate-400 uppercase">Service</label>
-                                <select id="serviceType" onchange="calcTotal()" class="w-full p-2 bg-white rounded-lg font-bold text-sm outline-none"><option value="80">Wash (80/kg)</option><option value="100">Iron+Wash (100)</option><option value="150">Dry Clean (150)</option></select>
+                                <select id="serviceType" onchange="calcTotal()" class="w-full p-2 bg-white rounded-lg font-bold text-sm outline-none">
+                                    <option value="0">Piece Rate Only</option>
+                                    <option value="80">Wash (80/kg)</option>
+                                    <option value="100">Iron+Wash (100)</option>
+                                    <option value="150">Dry Clean (150)</option>
+                                </select>
                             </div>
                             <div>
-                                <label class="text-[10px] font-bold text-slate-400 uppercase">Weight (Kg)</label>
+                                <label class="text-[10px] font-bold text-slate-400 uppercase">Weight (Optional)</label>
                                 <input id="weight" type="number" step="0.1" oninput="calcTotal()" placeholder="0.0" class="w-full p-2 bg-white rounded-lg font-bold text-sm outline-none">
                             </div>
-                        </div>
-                        <div>
-                            <label class="text-[10px] font-bold text-slate-400 uppercase">Manual Rate (Optional)</label>
-                            <input id="manualRate" type="number" oninput="calcTotal()" placeholder="Enter Amount directly..." class="w-full p-2 bg-white border border-slate-200 rounded-lg font-bold text-sm outline-none focus:border-blue-500">
                         </div>
                     </div>
 
                     <div class="grid grid-cols-2 gap-4 mb-6">
-                        <div><label class="text-[10px] font-bold text-slate-400 uppercase">Total Bill</label><input id="total" type="number" readonly class="w-full p-3 bg-slate-100 rounded-xl font-extrabold text-2xl text-slate-800 outline-none"></div>
-                        <div><label class="text-[10px] font-bold text-slate-400 uppercase">Amount Paid</label><input id="paid" type="number" placeholder="0" class="w-full p-3 bg-white border-2 border-green-100 rounded-xl font-extrabold text-2xl text-green-600 outline-none focus:border-green-400 transition"></div>
+                        <div>
+                            <label class="text-[10px] font-bold text-slate-400 uppercase">Total Bill</label>
+                            <input id="total" type="number" readonly class="w-full p-3 bg-slate-100 rounded-xl font-extrabold text-2xl text-slate-800 outline-none">
+                        </div>
+                        <div>
+                            <label class="text-[10px] font-bold text-slate-400 uppercase">Amount Paid</label>
+                            <input id="paid" type="number" placeholder="0" class="w-full p-3 bg-white border-2 border-green-100 rounded-xl font-extrabold text-2xl text-green-600 outline-none focus:border-green-400 transition">
+                        </div>
                     </div>
 
                     <div class="grid grid-cols-3 gap-2">
@@ -134,7 +145,7 @@
                             </svg>
                             <div class="absolute inset-0 flex flex-col items-center justify-center">
                                 <span id="percentText" class="text-4xl font-bold text-slate-800">0%</span>
-                                <span class="text-[10px] font-bold text-slate-400 uppercase">Generated</span>
+                                <span class="text-[10px] font-bold text-slate-400 uppercase">Collected</span>
                             </div>
                         </div>
                     </div>
@@ -150,6 +161,32 @@
                 </div>
             </div>
         </main>
+    </div>
+
+    <div id="addItemModal" class="hidden fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4 no-print backdrop-blur-sm">
+        <div class="bg-white rounded-2xl p-6 w-full max-w-xs shadow-2xl transform transition-all scale-100">
+            <h3 id="modalTitle" class="font-bold text-lg mb-4 text-center">Add Item</h3>
+            
+            <div class="space-y-3">
+                <div>
+                    <label class="text-xs font-bold text-slate-400">Quantity</label>
+                    <div class="flex items-center gap-3">
+                        <button onclick="adjQty(-1)" class="w-10 h-10 rounded-lg bg-slate-100 font-bold">-</button>
+                        <input id="modalQty" type="number" value="1" class="flex-1 p-2 text-center text-xl font-bold bg-slate-50 rounded-lg outline-none">
+                        <button onclick="adjQty(1)" class="w-10 h-10 rounded-lg bg-slate-100 font-bold">+</button>
+                    </div>
+                </div>
+                <div>
+                    <label class="text-xs font-bold text-slate-400">Price Per Piece (₹)</label>
+                    <input id="modalRate" type="number" class="w-full p-3 bg-slate-50 rounded-xl font-bold text-lg border border-blue-100 focus:border-blue-500 outline-none">
+                </div>
+            </div>
+
+            <div class="flex gap-2 mt-6">
+                <button onclick="closeItemModal()" class="flex-1 bg-slate-100 font-bold py-3 rounded-xl text-xs">Cancel</button>
+                <button onclick="confirmAddItem()" class="flex-1 bg-blue-600 text-white font-bold py-3 rounded-xl text-xs shadow-lg shadow-blue-200">Add Item</button>
+            </div>
+        </div>
     </div>
 
     <div id="editBillModal" class="hidden fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4 no-print">
@@ -172,18 +209,28 @@
             <h1 class="text-xl font-bold">A1 DRYCLEANERS</h1>
             <p class="text-[10px] mt-1">Pune, Maharashtra | 9890XXXXXX</p>
             <div class="border-b border-dashed border-black my-3"></div>
+            
             <div class="flex justify-between text-xs mb-1"><span>Date:</span> <span id="recDate"></span></div>
             <div class="flex justify-between text-xs mb-3"><span>Cust:</span> <span id="recName" class="font-bold"></span></div>
             
-            <p class="text-left text-xs font-bold mb-1">Items:</p>
-            <p id="recItems" class="text-left text-xs mb-2"></p>
-
             <table class="w-full text-left text-xs mb-2">
-                <tr class="border-b border-black font-bold"><th class="py-1">Service</th><th class="text-center">Kg</th><th class="text-right">Amt</th></tr>
-                <tr><td class="py-2" id="recService"></td><td class="text-center" id="recWeight"></td><td class="text-right" id="recTotal"></td></tr>
+                <thead class="border-b border-black">
+                    <tr><th class="py-1">Item</th><th class="text-center">Qty</th><th class="text-right">Rate</th><th class="text-right">Amt</th></tr>
+                </thead>
+                <tbody id="recTableBody">
+                    </tbody>
             </table>
+
+            <div id="recWeightSection" class="hidden border-t border-dashed border-black pt-1 mb-2">
+                <div class="flex justify-between text-xs">
+                    <span id="recServiceType">Weight Service</span>
+                    <span id="recWeightCalc"></span>
+                    <span id="recWeightTotal" class="font-bold"></span>
+                </div>
+            </div>
+
             <div class="border-b border-dashed border-black my-2"></div>
-            <div class="flex justify-between font-bold text-sm"><span>TOTAL:</span> <span id="recFinal"></span></div>
+            <div class="flex justify-between font-bold text-sm"><span>GRAND TOTAL:</span> <span id="recFinal"></span></div>
             <div class="flex justify-between text-xs mt-1"><span>Paid:</span> <span id="recPaid"></span></div>
             <div class="flex justify-between text-xs mt-1"><span>BAL DUE:</span> <span id="recDue" class="font-bold"></span></div>
             <div class="border-b border-dashed border-black my-4"></div>
@@ -192,19 +239,94 @@
     </div>
 
     <script>
-        let allCust=[], allBills=[], selected=null, itemList={};
+        let allCust=[], allBills=[], selected=null;
+        let cart = []; // Array to store {name, qty, rate, total}
 
-        // --- CLOTH COUNTER LOGIC ---
-        function addItem(name) {
-            if(!itemList[name]) itemList[name]=0;
-            itemList[name]++;
-            updateItemDisplay();
+        // --- ITEM & CART LOGIC ---
+        let currentItem = '';
+
+        function openItemModal(item) {
+            currentItem = item;
+            document.getElementById('modalTitle').innerText = `Add ${item}`;
+            document.getElementById('modalQty').value = 1;
+            
+            // Set Default Rates
+            let rate = '';
+            if(item === 'Shirt') rate = 12;
+            if(item === 'Pant') rate = 12;
+            
+            document.getElementById('modalRate').value = rate;
+            document.getElementById('addItemModal').classList.remove('hidden');
+            document.getElementById('modalRate').focus();
         }
-        function clearItems() { itemList={}; updateItemDisplay(); }
-        function updateItemDisplay() {
-            let txt = [];
-            for(let [k,v] of Object.entries(itemList)) txt.push(`${v} ${k}`);
-            document.getElementById('itemsDisplay').value = txt.join(", ") || "No items selected";
+
+        function closeItemModal() {
+            document.getElementById('addItemModal').classList.add('hidden');
+        }
+
+        function adjQty(n) {
+            let q = parseInt(document.getElementById('modalQty').value) || 0;
+            if(q + n > 0) document.getElementById('modalQty').value = q + n;
+        }
+
+        function confirmAddItem() {
+            const qty = parseInt(document.getElementById('modalQty').value) || 0;
+            const rate = parseFloat(document.getElementById('modalRate').value) || 0;
+            
+            if(qty > 0 && rate >= 0) {
+                cart.push({
+                    name: currentItem,
+                    qty: qty,
+                    rate: rate,
+                    total: qty * rate
+                });
+                renderCart();
+                closeItemModal();
+                calcTotal();
+            } else {
+                alert("Please enter valid Quantity and Rate");
+            }
+        }
+
+        function removeCartItem(index) {
+            cart.splice(index, 1);
+            renderCart();
+            calcTotal();
+        }
+
+        function renderCart() {
+            const list = document.getElementById('cartList');
+            const msg = document.getElementById('emptyCartMsg');
+            
+            if(cart.length === 0) {
+                list.innerHTML = '';
+                msg.classList.remove('hidden');
+            } else {
+                msg.classList.add('hidden');
+                list.innerHTML = '';
+                cart.forEach((item, index) => {
+                    list.innerHTML += `
+                        <div class="flex justify-between items-center bg-white p-2 rounded-lg border border-slate-100 shadow-sm">
+                            <div class="flex-1">
+                                <span class="text-xs font-bold text-slate-700">${item.name}</span>
+                                <div class="text-[10px] text-slate-400">${item.qty} x ₹${item.rate}</div>
+                            </div>
+                            <div class="flex items-center gap-3">
+                                <span class="text-sm font-bold text-blue-600">₹${item.total}</span>
+                                <button onclick="removeCartItem(${index})" class="text-red-400 hover:text-red-600">
+                                    <i class="fa-solid fa-trash text-xs"></i>
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                });
+            }
+        }
+
+        function clearCart() {
+            cart = [];
+            renderCart();
+            calcTotal();
         }
 
         // --- AUTH & INIT ---
@@ -227,15 +349,10 @@
             document.getElementById('dashPaid').innerText = `₹${paid}`;
             document.getElementById('dashDue').innerText = `₹${due}`;
             
-            // REVENUE CIRCLE: Shows Billed % (Always 100 for generated) or Collection rate?
-            // User requested: "use tht for cutomers bill generated deu".
-            // I will show % of Total Billed that is DUE (Pending).
-            const pendingPct = total>0 ? Math.round((due/total)*100) : 0;
-            const collectedPct = 100 - pendingPct;
-            document.getElementById('percentText').innerText = `${collectedPct}%`;
-            document.getElementById('revCircle').style.strokeDashoffset = 552 - ((collectedPct/100) * 552);
+            const pendingPct = total>0 ? Math.round((paid/total)*100) : 0; // Changed to Collected %
+            document.getElementById('percentText').innerText = `${pendingPct}%`;
+            document.getElementById('revCircle').style.strokeDashoffset = 552 - ((pendingPct/100) * 552);
 
-            // TOP PENDING
             const pendingList = document.getElementById('topPendingList'); pendingList.innerHTML = "";
             Object.entries(pendingMap).sort((a,b)=>b[1]-a[1]).slice(0,5).forEach(([n,a])=>{
                 pendingList.innerHTML+=`<div class="flex justify-between items-center bg-red-50 p-3 rounded-xl"><span class="text-xs font-bold text-slate-700">${n}</span><span class="text-xs font-extrabold text-red-600">₹${a}</span></div>`;
@@ -246,14 +363,17 @@
 
         // --- ACTIONS ---
         function calcTotal() {
-            const man = document.getElementById('manualRate').value;
-            if(man) {
-                document.getElementById('total').value = man;
-            } else {
-                const w = parseFloat(document.getElementById('weight').value)||0;
-                const r = parseInt(document.getElementById('serviceType').value);
-                document.getElementById('total').value = Math.ceil(w*r);
-            }
+            // 1. Calculate Cart Total
+            let cartTotal = 0;
+            cart.forEach(i => cartTotal += i.total);
+
+            // 2. Calculate Weight Total
+            const w = parseFloat(document.getElementById('weight').value)||0;
+            const r = parseInt(document.getElementById('serviceType').value)||0;
+            const weightTotal = Math.ceil(w * r);
+
+            // 3. Grand Total
+            document.getElementById('total').value = cartTotal + weightTotal;
         }
         
         function filterCust() {
@@ -267,13 +387,30 @@
 
         function saveBill(action) {
             if(!selected) return alert("Select Customer");
-            const tot=document.getElementById('total').value, pd=document.getElementById('paid').value||0, wt=document.getElementById('weight').value;
-            const svc=document.getElementById('serviceType').options[document.getElementById('serviceType').selectedIndex].text.split('(')[0];
-            const itemStr = document.getElementById('itemsDisplay').value;
+            
+            // Recalculate everything to be safe
+            calcTotal();
+            
+            const tot = parseInt(document.getElementById('total').value);
+            const pd = parseInt(document.getElementById('paid').value) || 0;
+            const wt = parseFloat(document.getElementById('weight').value) || 0;
+            const svcRate = parseInt(document.getElementById('serviceType').value) || 0;
+            
+            // Get Service Name
+            const sel = document.getElementById('serviceType');
+            const svcName = sel.options[sel.selectedIndex].text;
 
             const data = {
-                customerName:selected.english, customerMobile:selected.mobile, total:parseInt(tot), paid:parseInt(pd), due:tot-pd,
-                weight:wt, serviceType:svc, items:itemStr, date:new Date().toLocaleString()
+                customerName: selected.english, 
+                customerMobile: selected.mobile, 
+                total: tot, 
+                paid: pd, 
+                due: tot - pd,
+                weight: wt, 
+                serviceType: svcName,
+                serviceRate: svcRate, // Store the rate used for weight
+                cartItems: cart, // Store the array of items
+                date: new Date().toLocaleString()
             };
 
             fetch('/bills', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(data)})
@@ -281,8 +418,15 @@
                 if(action==='print') printReceipt(data);
                 else if(action==='send') window.location=`https://wa.me/91${selected.mobile}?text=${encodeURIComponent(`Invoice: ₹${tot}`)}`;
                 else alert("Saved!");
-                document.getElementById('weight').value=""; document.getElementById('total').value=""; document.getElementById('paid').value=""; document.getElementById('custSearch').value=""; document.getElementById('manualRate').value="";
-                clearItems(); selected=null; await init();
+                
+                // Reset Forms
+                document.getElementById('weight').value=""; 
+                document.getElementById('total').value=""; 
+                document.getElementById('paid').value=""; 
+                document.getElementById('custSearch').value=""; 
+                clearCart(); 
+                selected=null; 
+                await init();
             });
         }
 
@@ -313,11 +457,45 @@
         }
 
         function printReceipt(b) {
-            document.getElementById('recName').innerText=b.customerName; document.getElementById('recDate').innerText=b.date.split(',')[0];
-            document.getElementById('recService').innerText=b.serviceType; document.getElementById('recWeight').innerText=b.weight+" kg";
-            document.getElementById('recTotal').innerText=b.total; document.getElementById('recFinal').innerText="₹"+b.total;
-            document.getElementById('recPaid').innerText="₹"+b.paid; document.getElementById('recDue').innerText="₹"+b.due;
-            document.getElementById('recItems').innerText = b.items || "-";
+            document.getElementById('recName').innerText=b.customerName; 
+            document.getElementById('recDate').innerText=b.date.split(',')[0];
+            
+            // Fill Items Table
+            const tbody = document.getElementById('recTableBody');
+            tbody.innerHTML = '';
+            
+            // Add Cart Items
+            if(b.cartItems && b.cartItems.length > 0) {
+                b.cartItems.forEach(item => {
+                    tbody.innerHTML += `
+                        <tr>
+                            <td class="py-1 pr-1">${item.name}</td>
+                            <td class="text-center">${item.qty}</td>
+                            <td class="text-right">${item.rate}</td>
+                            <td class="text-right font-bold">${item.total}</td>
+                        </tr>
+                    `;
+                });
+            } else if(b.items && typeof b.items === 'string') {
+                // Backward compatibility for old bills
+                 tbody.innerHTML += `<tr><td colspan="4" class="py-1">${b.items}</td></tr>`;
+            }
+
+            // Handle Weight Section
+            const weightSec = document.getElementById('recWeightSection');
+            if(b.weight > 0) {
+                weightSec.classList.remove('hidden');
+                document.getElementById('recServiceType').innerText = b.serviceType.split('(')[0];
+                document.getElementById('recWeightCalc').innerText = `${b.weight}kg x ${b.serviceRate}`;
+                document.getElementById('recWeightTotal').innerText = Math.ceil(b.weight * b.serviceRate);
+            } else {
+                weightSec.classList.add('hidden');
+            }
+
+            document.getElementById('recFinal').innerText="₹"+b.total;
+            document.getElementById('recPaid').innerText="₹"+b.paid; 
+            document.getElementById('recDue').innerText="₹"+b.due;
+            
             setTimeout(()=>window.print(), 200);
         }
 
