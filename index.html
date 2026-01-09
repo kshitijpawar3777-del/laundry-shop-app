@@ -3,306 +3,399 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>A1 Drycleaners | Login</title>
+    <title>A1 Drycleaners | Pro</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <style>
-        body { font-family: 'Plus Jakarta Sans', sans-serif; }
-        .mesh-light {
-            background-color: #f8fafc;
-            background-image: radial-gradient(at 0% 0%, hsla(210,100%,96%,1) 0, transparent 50%), radial-gradient(at 100% 0%, hsla(220,100%,96%,1) 0, transparent 50%), radial-gradient(at 100% 100%, hsla(200,100%,96%,1) 0, transparent 50%);
-        }
-        .animate-float { animation: float 6s ease-in-out infinite; }
-        @keyframes float { 0% { transform: translateY(0px); } 50% { transform: translateY(-10px); } 100% { transform: translateY(0px); } }
+        body { font-family: 'Outfit', sans-serif; background-color: #f1f5f9; }
+        
+        /* Glassmorphism & Gradients */
+        .glass { background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.5); }
+        .gradient-text { background: linear-gradient(to right, #2563eb, #7c3aed); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        
+        /* Circle Chart Animation */
+        .progress-circle { transform: rotate(-90deg); transform-origin: 50% 50%; transition: stroke-dashoffset 1s ease-in-out; }
+        
+        /* Hide Scrollbar */
         .no-scrollbar::-webkit-scrollbar { display: none; }
-        @media print { body * { visibility: hidden; } #receiptArea, #receiptArea * { visibility: visible; display: block !important; } #receiptArea { position: absolute; top: 0; left: 0; width: 100%; } .no-print { display: none !important; } }
+
+        /* PRINT STYLES (Receipt Only) */
+        @media print {
+            body * { visibility: hidden; }
+            #receiptArea, #receiptArea * { visibility: visible; display: block !important; }
+            #receiptArea { position: absolute; top: 0; left: 0; width: 100%; margin: 0; padding: 0; background: white; }
+            .no-print { display: none !important; }
+        }
     </style>
 </head>
-<body class="mesh-light text-slate-900 min-h-screen overflow-x-hidden">
+<body class="min-h-screen text-slate-800">
 
-    <div id="loginSection" class="fixed inset-0 z-[100] bg-white flex items-center justify-center p-6">
-        <div class="w-full max-w-sm text-center">
+    <div id="loginSection" class="fixed inset-0 z-50 bg-slate-50 flex items-center justify-center p-4">
+        <div class="bg-white p-8 rounded-3xl shadow-2xl w-full max-w-sm text-center">
             <div class="w-16 h-16 bg-blue-600 rounded-2xl mx-auto flex items-center justify-center text-white text-2xl font-bold shadow-lg mb-6">A1</div>
-            <h1 class="text-3xl font-extrabold mb-2">Welcome Back</h1>
-            <p class="text-slate-400 mb-8 text-sm">Please sign in to manage your shop.</p>
-            
-            <div class="space-y-4 text-left">
-                <div>
-                    <label class="text-xs font-bold text-slate-500 uppercase ml-1">Username</label>
-                    <input id="loginUser" type="text" placeholder="Enter ID" class="w-full p-4 bg-slate-50 rounded-xl font-bold outline-none border border-slate-200 focus:border-blue-500 transition">
-                </div>
-                <div>
-                    <label class="text-xs font-bold text-slate-500 uppercase ml-1">Password</label>
-                    <input id="loginPass" type="password" placeholder="Enter Password" class="w-full p-4 bg-slate-50 rounded-xl font-bold outline-none border border-slate-200 focus:border-blue-500 transition">
-                </div>
-                <button onclick="attemptLogin()" class="w-full bg-blue-600 text-white py-4 rounded-xl font-bold shadow-xl shadow-blue-500/20 hover:scale-[1.02] transition">Sign In</button>
-                <p id="loginError" class="text-red-500 text-xs font-bold text-center hidden">Invalid ID or Password!</p>
-            </div>
-            <p class="text-slate-300 text-[10px] mt-8 uppercase font-bold tracking-widest">A1 Drycleaners Manager</p>
+            <h1 class="text-2xl font-bold mb-1">Welcome Back</h1>
+            <p class="text-slate-400 text-sm mb-6">Login to manage your shop</p>
+            <input id="loginUser" placeholder="Username" class="w-full p-4 bg-slate-50 rounded-xl font-bold mb-3 border border-slate-100 outline-none focus:border-blue-500">
+            <input id="loginPass" type="password" placeholder="Password" class="w-full p-4 bg-slate-50 rounded-xl font-bold mb-6 border border-slate-100 outline-none focus:border-blue-500">
+            <button onclick="attemptLogin()" class="w-full bg-blue-600 text-white py-4 rounded-xl font-bold shadow-lg hover:bg-blue-700 transition">Secure Login</button>
+            <p id="loginError" class="text-red-500 text-xs font-bold mt-3 hidden">Wrong Credentials!</p>
         </div>
     </div>
 
-    <div id="dashboardSection" class="hidden">
-        <nav class="fixed w-full z-50 top-0 left-0 bg-white/70 backdrop-blur-md border-b border-white/50 no-print">
-            <div class="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
+    <div id="dashboardSection" class="hidden pb-20">
+        
+        <nav class="fixed top-0 w-full glass z-40 border-b border-slate-200/50 no-print">
+            <div class="max-w-6xl mx-auto px-6 h-20 flex items-center justify-between">
                 <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center text-white font-bold text-lg shadow-lg">A1</div>
+                    <div class="w-10 h-10 bg-gradient-to-br from-blue-600 to-purple-600 rounded-xl text-white flex items-center justify-center font-bold">A1</div>
                     <div>
-                        <div class="text-lg font-extrabold tracking-tight text-slate-900">A1 Drycleaners</div>
-                        <div class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Manager v5.0</div>
+                        <h1 class="font-bold text-lg leading-tight">A1 Laundry</h1>
+                        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Manager Pro</p>
                     </div>
                 </div>
-                <div class="flex gap-3">
-                    <button onclick="toggleSettings()" class="w-8 h-8 rounded-full bg-slate-100 border border-slate-200 flex items-center justify-center text-slate-600"><i class="fa-solid fa-gear"></i></button>
-                    <button onclick="logout()" class="w-8 h-8 rounded-full bg-red-50 border border-red-100 flex items-center justify-center text-red-500 hover:bg-red-500 hover:text-white transition"><i class="fa-solid fa-power-off"></i></button>
-                </div>
+                <button onclick="logout()" class="w-9 h-9 rounded-full bg-red-50 text-red-500 flex items-center justify-center hover:bg-red-500 hover:text-white transition"><i class="fa-solid fa-power-off"></i></button>
             </div>
         </nav>
 
-        <main class="max-w-7xl mx-auto px-6 pt-32 pb-20 grid lg:grid-cols-2 gap-16 items-start no-print">
-            <div class="flex flex-col items-start z-10">
-                <h1 class="text-4xl lg:text-5xl font-extrabold tracking-tight text-slate-900 mb-6 leading-[1.1]">Shop Dashboard</h1>
-                <div class="w-full bg-white p-2 rounded-[2rem] shadow-2xl ring-1 ring-slate-100">
-                    <div class="flex p-1 bg-slate-50 rounded-xl mb-4">
-                        <button onclick="switchTab('bill')" id="tabBill" class="flex-1 py-3 rounded-lg text-xs font-bold bg-white text-slate-900 shadow-sm transition">🧾 Bill</button>
-                        <button onclick="switchTab('customers')" id="tabCustomers" class="flex-1 py-3 rounded-lg text-xs font-bold text-slate-400 hover:text-slate-600 transition">👥 Customers</button>
-                        <button onclick="switchTab('history')" id="tabHistory" class="flex-1 py-3 rounded-lg text-xs font-bold text-slate-400 hover:text-slate-600 transition">📋 History</button>
+        <main class="max-w-6xl mx-auto px-6 pt-28 grid lg:grid-cols-2 gap-8 items-start no-print">
+            
+            <div class="space-y-6">
+                
+                <div class="bg-white p-1.5 rounded-2xl shadow-sm border border-slate-200 flex">
+                    <button onclick="switchTab('bill')" id="tabBill" class="flex-1 py-3 rounded-xl text-xs font-bold bg-slate-900 text-white shadow-md transition">New Bill</button>
+                    <button onclick="switchTab('customers')" id="tabCustomers" class="flex-1 py-3 rounded-xl text-xs font-bold text-slate-400 hover:text-slate-600 transition">Customers</button>
+                    <button onclick="switchTab('history')" id="tabHistory" class="flex-1 py-3 rounded-xl text-xs font-bold text-slate-400 hover:text-slate-600 transition">History</button>
+                </div>
+
+                <div id="viewBill" class="bg-white p-6 rounded-[2rem] shadow-xl shadow-slate-200/50 border border-slate-100">
+                    <h2 class="text-xl font-bold mb-4">Create Invoice</h2>
+                    
+                    <div class="relative mb-2">
+                        <i class="fa-solid fa-search absolute left-4 top-4 text-slate-400"></i>
+                        <input id="custSearch" onkeyup="filterCust()" placeholder="Search Customer..." class="w-full pl-10 p-4 bg-slate-50 rounded-xl font-bold text-sm outline-none focus:ring-2 focus:ring-blue-100">
+                    </div>
+                    <div id="custList" class="flex gap-2 overflow-x-auto pb-2 mb-4 no-scrollbar h-10"></div>
+                    
+                    <div class="bg-slate-50 p-4 rounded-2xl border border-slate-100 mb-4">
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="text-[10px] font-bold text-slate-400 uppercase">Service</label>
+                                <select id="serviceType" onchange="calcTotal()" class="w-full p-2 bg-white rounded-lg font-bold text-sm border-none outline-none">
+                                    <option value="80">Wash (₹80/kg)</option>
+                                    <option value="100">Wash + Iron (₹100)</option>
+                                    <option value="150">Dry Clean (₹150)</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="text-[10px] font-bold text-slate-400 uppercase">Weight (Kg)</label>
+                                <input id="weight" type="number" step="0.1" oninput="calcTotal()" placeholder="0.0" class="w-full p-2 bg-white rounded-lg font-bold text-sm outline-none">
+                            </div>
+                        </div>
                     </div>
 
-                    <div id="viewBill" class="p-4 space-y-4">
-                        <div class="relative"><i class="fa-solid fa-magnifying-glass absolute left-4 top-4 text-slate-400"></i><input id="customerSearch" onkeyup="filterCustomers()" placeholder="Search Customer..." class="w-full pl-10 p-4 bg-slate-50 rounded-xl font-bold text-sm outline-none focus:ring-2 focus:ring-blue-100 transition"></div>
-                        <div id="customerList" class="flex gap-2 overflow-x-auto pb-2 no-scrollbar h-12"></div>
-                        <div class="bg-blue-50 p-4 rounded-xl border border-blue-100 grid grid-cols-2 gap-3">
-                            <div><label class="text-[10px] font-bold text-blue-400 uppercase">Service</label><select id="serviceType" onchange="calculateTotal()" class="w-full p-2 bg-white rounded-lg font-bold text-sm outline-none"><option value="80">Wash (₹80/kg)</option><option value="100">Iron+Wash (₹100)</option></select></div>
-                            <div><label class="text-[10px] font-bold text-blue-400 uppercase">Weight</label><input id="weight" type="number" step="0.1" oninput="calculateTotal()" placeholder="0.0" class="w-full p-2 bg-white rounded-lg font-bold text-sm outline-none"></div>
+                    <div class="grid grid-cols-2 gap-4 mb-6">
+                        <div>
+                            <label class="text-[10px] font-bold text-slate-400 uppercase">Total Bill</label>
+                            <input id="total" type="number" readonly class="w-full p-3 bg-slate-100 rounded-xl font-extrabold text-2xl text-slate-800 outline-none">
                         </div>
-                        <div class="grid grid-cols-2 gap-3">
-                            <input id="total" type="number" placeholder="Total" readonly class="w-full p-4 bg-slate-100 rounded-xl font-extrabold text-xl outline-none">
-                            <input id="paid" type="number" placeholder="Paid" class="w-full p-4 bg-slate-50 rounded-xl font-extrabold text-xl text-green-600 outline-none focus:ring-2 focus:ring-green-100">
-                        </div>
-                        <div class="grid grid-cols-3 gap-2 pt-2">
-                            <button onclick="processBill('save')" class="bg-slate-200 h-12 rounded-xl font-bold text-xs"><i class="fa-solid fa-save"></i> Save</button>
-                            <button onclick="processBill('print')" class="bg-slate-900 text-white h-12 rounded-xl font-bold text-xs"><i class="fa-solid fa-print"></i> Print</button>
-                            <button onclick="processBill('send')" class="bg-green-600 text-white h-12 rounded-xl font-bold text-xs"><i class="fa-brands fa-whatsapp"></i> Send</button>
+                        <div>
+                            <label class="text-[10px] font-bold text-slate-400 uppercase">Amount Paid</label>
+                            <input id="paid" type="number" placeholder="0" class="w-full p-3 bg-white border-2 border-green-100 rounded-xl font-extrabold text-2xl text-green-600 outline-none focus:border-green-400 transition">
                         </div>
                     </div>
 
-                    <div id="viewCustomers" class="hidden p-4 space-y-4">
-                        <div class="bg-slate-50 p-4 rounded-xl border border-slate-100">
-                            <h4 class="text-xs font-bold text-slate-400 uppercase mb-2">Add New Customer</h4>
-                            <div class="grid grid-cols-2 gap-2 mb-2"><input id="newName" placeholder="Name" class="p-2 rounded-lg text-sm border"><input id="newMobile" placeholder="Mobile" class="p-2 rounded-lg text-sm border"></div>
-                            <button onclick="saveNewCustomer()" class="w-full bg-blue-600 text-white py-2 rounded-lg font-bold text-xs">Add Customer</button>
-                        </div>
-                        <input id="manageSearch" onkeyup="renderManageList()" placeholder="Search list..." class="w-full p-3 bg-white border rounded-xl text-sm mb-2">
-                        <div id="manageList" class="max-h-80 overflow-y-auto space-y-2"></div>
+                    <div class="grid grid-cols-3 gap-2">
+                        <button onclick="saveBill('save')" class="bg-slate-100 text-slate-600 h-14 rounded-xl font-bold text-xs hover:bg-slate-200">Save Only</button>
+                        <button onclick="saveBill('print')" class="bg-slate-900 text-white h-14 rounded-xl font-bold text-xs hover:bg-slate-800 shadow-lg shadow-slate-300">Save & Print</button>
+                        <button onclick="saveBill('send')" class="bg-green-500 text-white h-14 rounded-xl font-bold text-xs hover:bg-green-600 shadow-lg shadow-green-200"><i class="fa-brands fa-whatsapp text-lg"></i></button>
                     </div>
+                </div>
 
-                    <div id="viewHistory" class="hidden p-4 space-y-4">
-                         <div id="globalHistoryList" class="max-h-96 overflow-y-auto space-y-2"></div>
+                <div id="viewCustomers" class="hidden space-y-4">
+                    <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100">
+                        <h3 class="font-bold mb-3">Add Customer</h3>
+                        <div class="flex gap-2">
+                            <input id="newName" placeholder="Name" class="flex-1 p-3 bg-slate-50 rounded-xl text-sm font-bold">
+                            <input id="newMobile" placeholder="Mobile" class="flex-1 p-3 bg-slate-50 rounded-xl text-sm font-bold">
+                        </div>
+                        <button onclick="addCust()" class="w-full mt-3 bg-blue-600 text-white py-3 rounded-xl font-bold text-xs">Save Customer</button>
                     </div>
+                    <div id="manageList" class="bg-white rounded-2xl p-2 shadow-sm"></div>
+                </div>
+                
+                <div id="viewHistory" class="hidden">
+                    <div id="globalHistory" class="bg-white rounded-2xl p-2 shadow-sm space-y-1"></div>
                 </div>
             </div>
 
-            <div class="relative lg:h-[600px] flex items-center justify-center">
-                <div class="animate-float w-full max-w-md bg-white/80 backdrop-blur-xl rounded-[2.5rem] shadow-2xl ring-1 ring-white/60 p-8 z-20">
-                    <div class="flex justify-between items-center mb-8">
-                        <div><span class="text-[10px] font-bold uppercase tracking-wider bg-green-100 text-green-700 px-3 py-1 rounded-full">Revenue</span><h3 class="text-2xl font-bold text-slate-900 mt-2">Today's Stats</h3></div>
-                        <div class="text-right"><div class="text-3xl font-extrabold text-blue-600" id="dashTotal">₹0</div><div class="text-[10px] text-slate-400 uppercase">Total Sales</div></div>
+            <div class="space-y-6">
+                
+                <div class="bg-white p-8 rounded-[2.5rem] shadow-xl shadow-blue-50/50 border border-white relative overflow-hidden">
+                    <div class="absolute top-0 right-0 w-32 h-32 bg-blue-100 rounded-full blur-3xl opacity-50 -mr-10 -mt-10"></div>
+                    
+                    <div class="flex justify-between items-start mb-8 relative z-10">
+                        <div>
+                            <span class="px-3 py-1 rounded-full bg-blue-50 text-blue-600 text-[10px] font-bold uppercase tracking-wider">Revenue Insight</span>
+                            <h2 class="text-3xl font-bold mt-2 text-slate-900" id="dashTotal">₹0</h2>
+                        </div>
                     </div>
-                    <h4 class="text-xs font-bold text-slate-400 uppercase mb-3 ml-1">Recent Bills</h4>
-                    <div id="dashboardList" class="space-y-2 max-h-60 overflow-y-auto pr-2"></div>
+
+                    <div class="flex justify-center mb-8 relative z-10">
+                        <div class="relative w-48 h-48">
+                            <svg class="w-full h-full transform -rotate-90">
+                                <circle cx="96" cy="96" r="88" stroke="#f1f5f9" stroke-width="12" fill="none"></circle>
+                                <circle id="revCircle" class="progress-circle" cx="96" cy="96" r="88" stroke="#2563eb" stroke-width="12" fill="none" stroke-dasharray="552" stroke-dashoffset="552" stroke-linecap="round"></circle>
+                            </svg>
+                            <div class="absolute inset-0 flex flex-col items-center justify-center">
+                                <span id="percentText" class="text-4xl font-bold text-slate-800">0%</span>
+                                <span class="text-[10px] font-bold text-slate-400 uppercase">Collection</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="bg-green-50 p-4 rounded-2xl">
+                            <p class="text-[10px] font-bold text-green-400 uppercase">Collected</p>
+                            <h3 id="dashPaid" class="text-xl font-bold text-green-700">₹0</h3>
+                        </div>
+                        <div class="bg-red-50 p-4 rounded-2xl">
+                            <p class="text-[10px] font-bold text-red-400 uppercase">Pending Due</p>
+                            <h3 id="dashDue" class="text-xl font-bold text-red-600">₹0</h3>
+                        </div>
+                    </div>
                 </div>
+
+                <div class="bg-white p-6 rounded-[2rem] shadow-lg border border-slate-100">
+                    <h3 class="font-bold text-slate-800 mb-4 flex items-center gap-2">
+                        <i class="fa-solid fa-triangle-exclamation text-red-500"></i> Top Pending Bills
+                    </h3>
+                    <div id="topPendingList" class="space-y-3">
+                        <p class="text-xs text-slate-400">Loading...</p>
+                    </div>
+                </div>
+
             </div>
         </main>
+    </div>
 
-        <div id="settingsPanel" class="hidden fixed inset-0 z-[60] bg-black/50 flex items-center justify-center p-4 no-print">
-            <div class="bg-white rounded-2xl p-6 w-full max-w-sm shadow-2xl">
-                <h3 class="font-bold text-lg mb-4">Settings</h3>
-                <label class="text-xs font-bold text-slate-400 uppercase">Shop UPI ID</label>
-                <input id="merchantUpi" placeholder="e.g. 9890XXXXXX@okaxis" class="w-full p-3 bg-slate-50 rounded-xl font-bold text-sm outline-none border border-blue-100 mb-4">
-                <button onclick="saveUpi()" class="w-full bg-blue-600 text-white py-3 rounded-xl font-bold">Save Settings</button>
-                <button onclick="toggleSettings()" class="w-full mt-2 text-slate-400 text-xs font-bold py-2">Close</button>
+    <div id="receiptArea" class="hidden">
+        <div class="p-4 max-w-[300px] mx-auto text-center font-mono text-black leading-tight">
+            <h1 class="text-xl font-bold">A1 DRYCLEANERS</h1>
+            <p class="text-[10px] mt-1">Shop No. 4, Main Road, Pune</p>
+            <p class="text-[10px]">Mobile: 9890XXXXXX</p>
+            <div class="border-b border-dashed border-black my-3"></div>
+            
+            <div class="flex justify-between text-xs mb-1">
+                <span>Date:</span> <span id="recDate"></span>
             </div>
-        </div>
-        
-        <div id="editCustomerModal" class="hidden fixed inset-0 z-[60] bg-black/50 flex items-center justify-center p-4 no-print">
-            <div class="bg-white rounded-2xl p-6 w-full max-w-sm shadow-2xl">
-                <h3 class="font-bold text-lg mb-4">Edit Customer</h3>
-                <input type="hidden" id="editCustId">
-                <input id="editEnglish" class="w-full p-3 bg-slate-50 rounded-xl font-bold text-sm outline-none border border-blue-100 mb-2">
-                <input id="editMarathi" class="w-full p-3 bg-slate-50 rounded-xl font-bold text-sm outline-none border border-blue-100 mb-2">
-                <input id="editMobile" class="w-full p-3 bg-slate-50 rounded-xl font-bold text-sm outline-none border border-blue-100 mb-4">
-                <div class="flex gap-2"><button onclick="closeEditModal()" class="flex-1 bg-slate-100 font-bold py-3 rounded-xl">Cancel</button><button onclick="saveCustomerEdits()" class="flex-1 bg-blue-600 text-white font-bold py-3 rounded-xl">Save</button></div>
+            <div class="flex justify-between text-xs mb-3">
+                <span>Cust:</span> <span id="recName" class="font-bold"></span>
             </div>
-        </div>
 
-        <div id="historyModal" class="hidden fixed inset-0 z-[60] bg-black/50 flex items-center justify-center p-4 no-print">
-            <div class="bg-white rounded-2xl p-6 w-full max-w-md shadow-2xl h-[80vh] flex flex-col">
-                <div class="flex justify-between items-center mb-4"><h3 class="font-bold text-lg">History</h3><button onclick="closeHistoryModal()" class="text-slate-400"><i class="fa-solid fa-times text-xl"></i></button></div>
-                <div id="customerHistoryList" class="flex-1 overflow-y-auto space-y-2 pr-2"></div>
+            <table class="w-full text-left text-xs mb-2">
+                <tr class="border-b border-black font-bold">
+                    <th class="py-1">Item</th>
+                    <th class="text-center">Kg</th>
+                    <th class="text-right">Amt</th>
+                </tr>
+                <tr>
+                    <td class="py-2" id="recService"></td>
+                    <td class="text-center" id="recWeight"></td>
+                    <td class="text-right" id="recTotal"></td>
+                </tr>
+            </table>
+
+            <div class="border-b border-dashed border-black my-2"></div>
+            
+            <div class="flex justify-between font-bold text-sm">
+                <span>TOTAL:</span> <span id="recFinal"></span>
             </div>
+            <div class="flex justify-between text-xs mt-1">
+                <span>Paid:</span> <span id="recPaid"></span>
+            </div>
+            <div class="flex justify-between text-xs mt-1">
+                <span>BAL DUE:</span> <span id="recDue" class="font-bold"></span>
+            </div>
+
+            <div class="border-b border-dashed border-black my-4"></div>
+            <p class="text-[10px]">Thank you! Visit Again.</p>
         </div>
     </div>
 
-    <div id="receiptArea" class="hidden"><div class="p-8 max-w-[300px] mx-auto text-center font-mono text-black"><h1 class="text-xl font-bold mb-1">A1 Drycleaners</h1><p class="text-xs mb-2">Pune, Maharashtra</p><div class="border-b-2 border-dashed border-black my-2"></div><div class="flex justify-between text-xs mb-1"><span>Date:</span><span id="recDate"></span></div><div class="flex justify-between text-xs mb-3"><span>Customer:</span><span id="recName" class="font-bold"></span></div><table class="w-full text-left text-xs mb-3"><thead><tr class="border-b border-black"><th class="py-1">Item</th><th class="text-right">Qty</th><th class="text-right">Amt</th></tr></thead><tbody><tr><td class="py-1" id="recService"></td><td class="text-right" id="recWeight"></td><td class="text-right" id="recTotal"></td></tr></tbody></table><div class="border-b-2 border-dashed border-black my-2"></div><div class="flex justify-between font-bold text-sm"><span>TOTAL:</span><span id="recFinalTotal"></span></div><div class="flex justify-between text-xs mt-1"><span>Paid:</span><span id="recPaid"></span></div><div class="flex justify-between text-xs mt-1"><span>Due:</span><span id="recDue"></span></div><div class="border-b-2 border-dashed border-black my-4"></div><p class="text-[10px] text-center">Thank you! Visit Again.</p></div></div>
-
     <script>
-        let allCustomers = [], allBills = [], selectedCustomer = null;
-        let shopUPI = localStorage.getItem('shopUPI') || "";
-
-        // --- 1. LOGIN SYSTEM ---
+        let allCust = [], allBills = [], selected = null;
+        
+        // --- AUTH ---
         function attemptLogin() {
             const u = document.getElementById('loginUser').value;
             const p = document.getElementById('loginPass').value;
-            
-            fetch('/login', {
-                method: 'POST', headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ username: u, pass: p })
-            }).then(res => res.json()).then(data => {
-                if(data.success) {
+            fetch('/login', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({username:u, pass:p})})
+            .then(res => res.json()).then(d => {
+                if(d.success) {
                     document.getElementById('loginSection').classList.add('hidden');
                     document.getElementById('dashboardSection').classList.remove('hidden');
                     init();
-                } else {
-                    document.getElementById('loginError').classList.remove('hidden');
-                }
+                } else document.getElementById('loginError').classList.remove('hidden');
             });
         }
-        
         function logout() { location.reload(); }
 
-        // --- 2. MAIN APP LOGIC ---
+        // --- INIT ---
         async function init() {
-            await Promise.all([loadCustomersData(), loadBillsData()]);
-            renderDashboard(); renderManageList(); renderGlobalHistory();
+            await Promise.all([fetch('/customers').then(r=>r.json()).then(d=>allCust=d), fetch('/bills').then(r=>r.json()).then(d=>allBills=d)]);
+            refreshUI();
         }
-        async function loadCustomersData() { const res = await fetch('/customers'); allCustomers = await res.json(); }
-        async function loadBillsData() { const res = await fetch('/bills'); allBills = await res.json(); }
 
-        function switchTab(tab) {
-            ['viewBill', 'viewCustomers', 'viewHistory'].forEach(id => document.getElementById(id).classList.add('hidden'));
-            ['tabBill', 'tabCustomers', 'tabHistory'].forEach(id => {
-                document.getElementById(id).className = "flex-1 py-3 rounded-lg text-xs font-bold text-slate-400 hover:text-slate-600 transition";
+        function refreshUI() {
+            // 1. Dashboard Stats
+            let total=0, paid=0, due=0;
+            // Create a map for pending bills per customer
+            let pendingMap = {};
+
+            allBills.forEach(b => {
+                total += b.total; paid += b.paid; due += b.due;
+                if(b.due > 0) {
+                    if(!pendingMap[b.customerName]) pendingMap[b.customerName] = 0;
+                    pendingMap[b.customerName] += b.due;
+                }
             });
-            if(tab === 'bill') { document.getElementById('viewBill').classList.remove('hidden'); document.getElementById('tabBill').className = "flex-1 py-3 rounded-lg text-xs font-bold bg-white text-slate-900 shadow-sm transition"; }
-            if(tab === 'customers') { document.getElementById('viewCustomers').classList.remove('hidden'); document.getElementById('tabCustomers').className = "flex-1 py-3 rounded-lg text-xs font-bold bg-white text-slate-900 shadow-sm transition"; }
-            if(tab === 'history') { document.getElementById('viewHistory').classList.remove('hidden'); document.getElementById('tabHistory').className = "flex-1 py-3 rounded-lg text-xs font-bold bg-white text-slate-900 shadow-sm transition"; }
+
+            document.getElementById('dashTotal').innerText = `₹${total}`;
+            document.getElementById('dashPaid').innerText = `₹${paid}`;
+            document.getElementById('dashDue').innerText = `₹${due}`;
+
+            // Circle Chart
+            const pct = total > 0 ? Math.round((paid/total)*100) : 0;
+            document.getElementById('percentText').innerText = `${pct}%`;
+            document.getElementById('revCircle').style.strokeDashoffset = 552 - ((pct/100) * 552);
+
+            // 2. Top Pending List
+            const sortedPending = Object.entries(pendingMap).sort((a,b) => b[1] - a[1]).slice(0, 5);
+            const pendingList = document.getElementById('topPendingList');
+            pendingList.innerHTML = "";
+            if(sortedPending.length === 0) pendingList.innerHTML = '<p class="text-xs text-slate-400">No pending dues!</p>';
+            
+            sortedPending.forEach(([name, amt]) => {
+                pendingList.innerHTML += `
+                <div class="flex justify-between items-center bg-red-50 p-3 rounded-xl">
+                    <span class="text-xs font-bold text-slate-700">${name}</span>
+                    <span class="text-xs font-extrabold text-red-600">₹${amt}</span>
+                </div>`;
+            });
+
+            // 3. History Lists
+            renderHistory();
+            renderManage();
         }
 
-        // --- BILLING ---
-        function calculateTotal() {
-            const w = parseFloat(document.getElementById('weight').value) || 0;
+        // --- ACTIONS ---
+        function calcTotal() {
+            const w = parseFloat(document.getElementById('weight').value)||0;
             const r = parseInt(document.getElementById('serviceType').value);
-            document.getElementById('total').value = Math.ceil(w * r);
+            document.getElementById('total').value = Math.ceil(w*r);
         }
-        function filterCustomers() {
-            const q = document.getElementById('customerSearch').value.toLowerCase();
-            const list = document.getElementById('customerList');
-            if(q.length < 1) { list.innerHTML = ""; return; }
-            const matches = allCustomers.filter(c => c.english.toLowerCase().includes(q) || c.mobile.includes(q));
+
+        function filterCust() {
+            const q = document.getElementById('custSearch').value.toLowerCase();
+            const list = document.getElementById('custList');
             list.innerHTML = "";
-            matches.slice(0, 5).forEach(c => {
-                const btn = document.createElement('button');
-                btn.className = "flex-shrink-0 px-4 py-2 bg-blue-50 text-blue-700 rounded-full text-xs font-bold border border-blue-100 hover:bg-blue-100 whitespace-nowrap";
-                btn.innerText = c.english;
-                btn.onclick = () => { selectedCustomer = c; document.getElementById('customerSearch').value = c.english; list.innerHTML = ""; };
-                list.appendChild(btn);
+            if(q.length<1) return;
+            allCust.filter(c=>c.english.toLowerCase().includes(q)||c.mobile.includes(q)).slice(0,5).forEach(c => {
+                list.innerHTML += `<button onclick="selectCust('${c.english}','${c.mobile}')" class="px-4 py-2 bg-blue-600 text-white rounded-full text-xs font-bold whitespace-nowrap">${c.english}</button>`;
             });
         }
-        function processBill(action) {
-            if(!selectedCustomer) return alert("Select Customer");
-            const total = document.getElementById('total').value;
-            const paid = document.getElementById('paid').value || 0;
-            const weight = document.getElementById('weight').value;
+        function selectCust(name, mob) {
+            selected = {english:name, mobile:mob};
+            document.getElementById('custSearch').value = name;
+            document.getElementById('custList').innerHTML = "";
+        }
+
+        function saveBill(action) {
+            if(!selected) return alert("Select Customer");
+            const tot = document.getElementById('total').value;
+            const pd = document.getElementById('paid').value || 0;
+            const wt = document.getElementById('weight').value;
+            const svc = document.getElementById('serviceType').options[document.getElementById('serviceType').selectedIndex].text.split('(')[0];
+
             const data = {
-                customerName: selectedCustomer.english, customerMobile: selectedCustomer.mobile,
-                total: total, paid: paid, due: total - paid, weight: weight,
-                serviceType: document.getElementById('serviceType').value === "80" ? "Wash" : "Iron+Wash",
+                customerName: selected.english, customerMobile: selected.mobile,
+                total: parseInt(tot), paid: parseInt(pd), due: tot-pd, weight: wt, serviceType: svc,
                 date: new Date().toLocaleString()
             };
-            fetch('/bills', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) })
+
+            fetch('/bills', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(data)})
             .then(async () => {
-                if(action === 'print') printInvoice(data);
-                else if(action === 'send') window.location.href = `https://wa.me/91${selectedCustomer.mobile}?text=${encodeURIComponent(`Invoice: ₹${total}`)}`;
-                else alert("Saved");
+                if(action==='print') printReceipt(data);
+                else if(action==='send') window.location = `https://wa.me/91${selected.mobile}?text=${encodeURIComponent(`Invoice: ₹${tot}`)}`;
+                else alert("Saved!");
                 
-                document.getElementById('weight').value = ""; document.getElementById('total').value = ""; 
-                document.getElementById('paid').value = ""; document.getElementById('customerSearch').value = "";
-                selectedCustomer = null; await loadBillsData(); renderDashboard(); renderGlobalHistory();
+                // Reset
+                document.getElementById('weight').value=""; document.getElementById('total').value=""; document.getElementById('paid').value=""; document.getElementById('custSearch').value="";
+                selected=null; await init();
             });
         }
 
-        // --- RENDERERS ---
-        function renderDashboard() {
-            let total = 0;
-            let list = document.getElementById('dashboardList'); list.innerHTML = "";
-            allBills.slice(0, 5).forEach(b => {
-                total += b.total;
-                list.innerHTML += `<div class="flex justify-between items-center p-2 bg-slate-50 rounded-lg border border-slate-100"><div class="text-xs font-bold">${b.customerName}</div><div class="text-xs font-bold text-slate-500">₹${b.total}</div></div>`;
-            });
-            document.getElementById('dashTotal').innerText = "₹" + total;
-        }
-        function renderManageList() {
-            const q = document.getElementById('manageSearch').value.toLowerCase();
-            const list = document.getElementById('manageList'); list.innerHTML = "";
-            allCustomers.filter(c => c.english.toLowerCase().includes(q) || c.mobile.includes(q)).forEach(c => {
-                list.innerHTML += `<div class="flex justify-between items-center bg-white p-3 rounded-xl border border-slate-100 shadow-sm"><div><div class="font-bold text-sm text-slate-900">${c.english}</div><div class="text-xs text-slate-500">${c.mobile}</div></div><div class="flex gap-2"><button onclick='openHistoryModal("${c.mobile}")' class="w-8 h-8 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center hover:bg-blue-600 hover:text-white transition"><i class="fa-solid fa-clock-rotate-left text-xs"></i></button><button onclick='openEditModal(${JSON.stringify(c)})' class="w-8 h-8 rounded-full bg-slate-100 text-slate-600 flex items-center justify-center hover:bg-slate-900 hover:text-white transition"><i class="fa-solid fa-pen text-xs"></i></button></div></div>`;
-            });
-        }
-        function renderGlobalHistory() {
-            const list = document.getElementById('globalHistoryList'); list.innerHTML = "";
-            allBills.forEach(b => {
-                list.innerHTML += `<div class="flex justify-between items-center p-3 bg-white rounded-xl border border-slate-100 shadow-sm"><div><div class="font-bold text-sm text-slate-900">${b.customerName}</div><div class="text-xs text-slate-400">${b.date.split(',')[0]}</div></div><div class="text-right flex items-center gap-3"><div><div class="text-xs font-bold text-slate-900">₹${b.total}</div><div class="text-[10px] ${b.due > 0 ? 'text-red-500' : 'text-green-500'} font-bold">${b.due > 0 ? 'Due' : 'Paid'}</div></div><button onclick='printInvoice(${JSON.stringify(b)})' class="w-6 h-6 rounded-full bg-slate-100 flex items-center justify-center hover:bg-black hover:text-white transition"><i class="fa-solid fa-print text-xs"></i></button></div></div>`;
+        function addCust() {
+            const n = document.getElementById('newName').value, m = document.getElementById('newMobile').value;
+            if(!n || !m) return alert("Fill data");
+            fetch('/customers', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({english:n, mobile:m})})
+            .then(() => { 
+                document.getElementById('newName').value=""; document.getElementById('newMobile').value="";
+                init(); alert("Customer Added");
             });
         }
 
-        // --- CRUD & PRINT ---
-        function saveNewCustomer() {
-            const name = document.getElementById('newName').value, mobile = document.getElementById('newMobile').value;
-            if(!name || !mobile) return alert("Fill all fields");
-            fetch('/customers', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ english: name, mobile: mobile }) }).then(async () => {
-                document.getElementById('newName').value = ""; document.getElementById('newMobile').value = "";
-                await loadCustomersData(); renderManageList(); alert("Added!");
-            });
-        }
-        function openEditModal(c) {
-            document.getElementById('editCustomerModal').classList.remove('hidden');
-            document.getElementById('editCustId').value = c._id;
-            document.getElementById('editEnglish').value = c.english;
-            document.getElementById('editMarathi').value = c.marathi || "";
-            document.getElementById('editMobile').value = c.mobile;
-        }
-        function closeEditModal() { document.getElementById('editCustomerModal').classList.add('hidden'); }
-        function saveCustomerEdits() {
-            const id = document.getElementById('editCustId').value;
-            const data = { english: document.getElementById('editEnglish').value, marathi: document.getElementById('editMarathi').value, mobile: document.getElementById('editMobile').value };
-            fetch(`/customers/${id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) }).then(async () => {
-                closeEditModal(); await loadCustomersData(); renderManageList(); alert("Updated!");
-            });
-        }
-        async function openHistoryModal(mobile) {
-            document.getElementById('historyModal').classList.remove('hidden');
-            const list = document.getElementById('customerHistoryList'); list.innerHTML = '<p class="text-center text-slate-400">Loading...</p>';
-            const res = await fetch(`/bills?mobile=${mobile}`); const bills = await res.json();
-            list.innerHTML = ""; if(bills.length === 0) list.innerHTML = '<p class="text-center text-slate-400 mt-10">No history found.</p>';
-            bills.forEach(b => {
-                list.innerHTML += `<div class="bg-slate-50 p-3 rounded-lg border border-slate-100 flex justify-between items-center"><div><div class="text-xs text-slate-400">${b.date.split(',')[0]}</div><div class="font-bold text-sm text-slate-900">Total: ₹${b.total}</div></div><div class="text-right"><div class="text-xs font-bold ${b.due > 0 ? 'text-red-500' : 'text-green-500'}">${b.due > 0 ? 'Due: ₹'+b.due : 'Paid'}</div><button onclick='printInvoice(${JSON.stringify(b)})' class="text-xs text-blue-600 underline">Print</button></div></div>`;
-            });
-        }
-        function closeHistoryModal() { document.getElementById('historyModal').classList.add('hidden'); }
-        
-        function printInvoice(b) {
-            document.getElementById('recName').innerText = b.customerName; document.getElementById('recDate').innerText = b.date.split(',')[0];
-            document.getElementById('recService').innerText = b.serviceType; document.getElementById('recWeight').innerText = b.weight;
-            document.getElementById('recTotal').innerText = b.total; document.getElementById('recFinalTotal').innerText = b.total;
-            document.getElementById('recPaid').innerText = b.paid; document.getElementById('recDue').innerText = b.due;
-            setTimeout(() => window.print(), 100);
+        function printReceipt(b) {
+            document.getElementById('recName').innerText = b.customerName;
+            document.getElementById('recDate').innerText = b.date.split(',')[0];
+            document.getElementById('recService').innerText = b.serviceType;
+            document.getElementById('recWeight').innerText = b.weight + " kg";
+            document.getElementById('recTotal').innerText = b.total;
+            document.getElementById('recFinal').innerText = "₹" + b.total;
+            document.getElementById('recPaid').innerText = "₹" + b.paid;
+            document.getElementById('recDue').innerText = "₹" + b.due;
+            setTimeout(()=>window.print(), 200);
         }
 
-        // Utils
-        function toggleSettings() { document.getElementById('settingsPanel').classList.toggle('hidden'); }
-        function saveUpi() { localStorage.setItem('shopUPI', document.getElementById('merchantUpi').value); toggleSettings(); }
+        // --- TABS & LISTS ---
+        function switchTab(t) {
+            ['viewBill','viewCustomers','viewHistory'].forEach(id=>document.getElementById(id).classList.add('hidden'));
+            ['tabBill','tabCustomers','tabHistory'].forEach(id=>{
+                const el=document.getElementById(id); 
+                el.className = "flex-1 py-3 rounded-xl text-xs font-bold text-slate-400 hover:text-slate-600 transition";
+            });
+            document.getElementById('view'+t.charAt(0).toUpperCase()+t.slice(1)).classList.remove('hidden');
+            document.getElementById('tab'+t.charAt(0).toUpperCase()+t.slice(1)).className = "flex-1 py-3 rounded-xl text-xs font-bold bg-slate-900 text-white shadow-md transition";
+        }
+
+        function renderHistory() {
+            const div = document.getElementById('globalHistory'); div.innerHTML = "";
+            allBills.slice(0,20).forEach(b => {
+                div.innerHTML += `
+                <div class="flex justify-between items-center p-3 hover:bg-slate-50 rounded-xl border-b border-slate-50 last:border-0">
+                    <div>
+                        <div class="font-bold text-sm">${b.customerName}</div>
+                        <div class="text-[10px] text-slate-400">${b.date.split(',')[0]}</div>
+                    </div>
+                    <div class="text-right">
+                        <div class="font-bold text-sm">₹${b.total}</div>
+                        <button onclick='printReceipt(${JSON.stringify(b)})' class="text-[10px] text-blue-500 underline">Print</button>
+                    </div>
+                </div>`;
+            });
+        }
+
+        function renderManage() {
+            const div = document.getElementById('manageList'); div.innerHTML = "";
+            allCust.forEach(c => {
+                div.innerHTML += `
+                <div class="flex justify-between items-center p-3 border-b border-slate-50">
+                    <div><div class="font-bold text-sm">${c.english}</div><div class="text-xs text-slate-400">${c.mobile}</div></div>
+                    <button class="w-8 h-8 rounded-full bg-slate-100 text-slate-500 flex items-center justify-center"><i class="fa-solid fa-pen text-xs"></i></button>
+                </div>`;
+            });
+        }
     </script>
 </body>
 </html>
