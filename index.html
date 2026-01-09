@@ -3,421 +3,306 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>A1 Drycleaners | Pro Dashboard</title>
-    
+    <title>A1 Drycleaners | Login</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-
     <style>
         body { font-family: 'Plus Jakarta Sans', sans-serif; }
         .mesh-light {
             background-color: #f8fafc;
-            background-image: 
-                radial-gradient(at 0% 0%, hsla(210,100%,96%,1) 0, transparent 50%), 
-                radial-gradient(at 100% 0%, hsla(220,100%,96%,1) 0, transparent 50%), 
-                radial-gradient(at 100% 100%, hsla(200,100%,96%,1) 0, transparent 50%);
+            background-image: radial-gradient(at 0% 0%, hsla(210,100%,96%,1) 0, transparent 50%), radial-gradient(at 100% 0%, hsla(220,100%,96%,1) 0, transparent 50%), radial-gradient(at 100% 100%, hsla(200,100%,96%,1) 0, transparent 50%);
         }
         .animate-float { animation: float 6s ease-in-out infinite; }
         @keyframes float { 0% { transform: translateY(0px); } 50% { transform: translateY(-10px); } 100% { transform: translateY(0px); } }
         .no-scrollbar::-webkit-scrollbar { display: none; }
-        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-        .progress-ring__circle { transition: stroke-dashoffset 1s ease-in-out; transform: rotate(-90deg); transform-origin: 50% 50%; }
-
-        /* RECEIPT PRINT STYLES */
-        @media print {
-            body * { visibility: hidden; }
-            #receiptArea, #receiptArea * { visibility: visible; }
-            #receiptArea { position: absolute; left: 0; top: 0; width: 100%; padding: 20px; background: white; color: black; }
-            .no-print { display: none !important; }
-        }
+        @media print { body * { visibility: hidden; } #receiptArea, #receiptArea * { visibility: visible; display: block !important; } #receiptArea { position: absolute; top: 0; left: 0; width: 100%; } .no-print { display: none !important; } }
     </style>
 </head>
 <body class="mesh-light text-slate-900 min-h-screen overflow-x-hidden">
 
-    <nav class="fixed w-full z-50 top-0 left-0 bg-white/70 backdrop-blur-md border-b border-white/50 no-print">
-        <div class="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
-            <div class="flex items-center gap-3">
-                <div class="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center text-white font-bold text-lg shadow-lg shadow-blue-500/30">A1</div>
-                <div>
-                    <div class="text-lg font-extrabold tracking-tight text-slate-900">A1 Drycleaners</div>
-                    <div class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Manager v3.0</div>
-                </div>
-            </div>
+    <div id="loginSection" class="fixed inset-0 z-[100] bg-white flex items-center justify-center p-6">
+        <div class="w-full max-w-sm text-center">
+            <div class="w-16 h-16 bg-blue-600 rounded-2xl mx-auto flex items-center justify-center text-white text-2xl font-bold shadow-lg mb-6">A1</div>
+            <h1 class="text-3xl font-extrabold mb-2">Welcome Back</h1>
+            <p class="text-slate-400 mb-8 text-sm">Please sign in to manage your shop.</p>
             
-            <button onclick="toggleSettings()" class="w-8 h-8 rounded-full bg-slate-100 border border-slate-200 flex items-center justify-center text-slate-600 hover:bg-blue-50 hover:text-blue-600 transition">
-                <i class="fa-solid fa-gear"></i>
-            </button>
-        </div>
-    </nav>
-
-    <div id="settingsPanel" class="hidden fixed inset-0 z-[60] bg-black/50 flex items-center justify-center p-4 no-print">
-        <div class="bg-white rounded-2xl p-6 w-full max-w-sm shadow-2xl">
-            <h3 class="font-bold text-lg mb-4">Settings</h3>
-            <label class="text-xs font-bold text-slate-400 uppercase">Shop UPI ID</label>
-            <input id="merchantUpi" placeholder="e.g. 9890XXXXXX@okaxis" class="w-full p-3 bg-slate-50 rounded-xl font-bold text-sm outline-none focus:ring-2 focus:ring-blue-100 mb-4">
-            <button onclick="saveUpi()" class="w-full bg-blue-600 text-white py-3 rounded-xl font-bold">Save Settings</button>
-            <button onclick="toggleSettings()" class="w-full mt-2 text-slate-400 text-xs font-bold py-2">Close</button>
+            <div class="space-y-4 text-left">
+                <div>
+                    <label class="text-xs font-bold text-slate-500 uppercase ml-1">Username</label>
+                    <input id="loginUser" type="text" placeholder="Enter ID" class="w-full p-4 bg-slate-50 rounded-xl font-bold outline-none border border-slate-200 focus:border-blue-500 transition">
+                </div>
+                <div>
+                    <label class="text-xs font-bold text-slate-500 uppercase ml-1">Password</label>
+                    <input id="loginPass" type="password" placeholder="Enter Password" class="w-full p-4 bg-slate-50 rounded-xl font-bold outline-none border border-slate-200 focus:border-blue-500 transition">
+                </div>
+                <button onclick="attemptLogin()" class="w-full bg-blue-600 text-white py-4 rounded-xl font-bold shadow-xl shadow-blue-500/20 hover:scale-[1.02] transition">Sign In</button>
+                <p id="loginError" class="text-red-500 text-xs font-bold text-center hidden">Invalid ID or Password!</p>
+            </div>
+            <p class="text-slate-300 text-[10px] mt-8 uppercase font-bold tracking-widest">A1 Drycleaners Manager</p>
         </div>
     </div>
 
-    <main class="max-w-7xl mx-auto px-6 pt-32 pb-20 grid lg:grid-cols-2 gap-16 items-start no-print">
-        
-        <div class="flex flex-col items-start z-10">
-            <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white border border-slate-200 text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-6 shadow-sm">
-                <span class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
-                Ready to Bill
-            </div>
-
-            <h1 class="text-5xl lg:text-6xl font-extrabold tracking-tight text-slate-900 mb-6 leading-[1.1]">
-                Auto Pricing <br>
-                <span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600"> & Instant Invoices.</span>
-            </h1>
-
-            <div class="w-full bg-white p-2 rounded-[2rem] shadow-2xl shadow-slate-200/50 ring-1 ring-slate-100">
-                
-                <div class="flex p-1 bg-slate-50 rounded-xl mb-4">
-                    <button onclick="switchTab('bill')" id="tabBill" class="flex-1 py-3 rounded-lg text-sm font-bold transition bg-white text-slate-900 shadow-sm">🧾 New Bill</button>
-                    <button onclick="switchTab('add')" id="tabAdd" class="flex-1 py-3 rounded-lg text-sm font-bold transition text-slate-400 hover:text-slate-600">👤 Add Customer</button>
-                </div>
-
-                <div id="formBill" class="p-4 space-y-4">
-                    <div class="relative">
-                        <i class="fa-solid fa-magnifying-glass absolute left-4 top-4 text-slate-400"></i>
-                        <input id="customerSearch" onkeyup="filterCustomers()" placeholder="Search Customer..." class="w-full pl-10 p-4 bg-slate-50 rounded-xl font-bold text-sm outline-none focus:ring-2 focus:ring-blue-100 transition">
-                    </div>
-                    
-                    <div id="customerList" class="flex gap-2 overflow-x-auto pb-2 no-scrollbar h-12">
-                        <span class="text-xs font-bold text-slate-400 self-center">Start typing...</span>
-                    </div>
-                    <input type="hidden" id="selectedCustomerId">
-
-                    <div class="bg-blue-50 p-4 rounded-xl border border-blue-100">
-                        <div class="grid grid-cols-2 gap-3 mb-3">
-                            <div>
-                                <label class="text-[10px] font-bold text-blue-400 uppercase ml-1">Service Type</label>
-                                <select id="serviceType" onchange="calculateTotal()" class="w-full p-3 bg-white rounded-lg font-bold text-sm outline-none border border-blue-100 text-slate-700">
-                                    <option value="80">Wash Only (₹80/kg)</option>
-                                    <option value="100">Wash + Iron (₹100/kg)</option>
-                                </select>
-                            </div>
-                            <div>
-                                <label class="text-[10px] font-bold text-blue-400 uppercase ml-1">Weight (Kg)</label>
-                                <input id="weight" type="number" step="0.1" oninput="calculateTotal()" placeholder="0.0" class="w-full p-3 bg-white rounded-lg font-bold text-sm outline-none border border-blue-100">
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="grid grid-cols-2 gap-3">
-                        <div>
-                            <label class="text-[10px] font-bold text-slate-400 uppercase ml-1">Total (₹)</label>
-                            <input id="total" type="number" readonly class="w-full p-4 bg-slate-100 text-slate-500 rounded-xl font-extrabold text-xl outline-none cursor-not-allowed">
-                        </div>
-                        <div>
-                            <label class="text-[10px] font-bold text-slate-400 uppercase ml-1">Paid (₹)</label>
-                            <input id="paid" type="number" placeholder="0" class="w-full p-4 bg-slate-50 rounded-xl font-extrabold text-xl text-green-600 outline-none focus:ring-2 focus:ring-green-100">
-                        </div>
-                    </div>
-
-                    <div class="flex gap-3 pt-2">
-                        <button onclick="processBill('save')" class="flex-1 bg-slate-900 text-white h-14 rounded-xl font-bold hover:bg-slate-800 transition shadow-lg shadow-slate-300/50 text-sm">Save & Print</button>
-                        <button onclick="processBill('send')" class="flex-1 bg-green-600 text-white h-14 rounded-xl font-bold hover:bg-green-700 transition shadow-lg shadow-green-500/30 text-sm flex items-center justify-center gap-2">
-                            <span>WhatsApp</span> <i class="fa-brands fa-whatsapp text-lg"></i>
-                        </button>
-                    </div>
-                </div>
-
-                <div id="formAdd" class="hidden p-4 space-y-4">
-                    <input id="nameEnglish" placeholder="Full Name (English)" class="w-full p-4 bg-slate-50 rounded-xl font-bold text-sm outline-none focus:ring-2 focus:ring-blue-100">
-                    <input id="nameMarathi" placeholder="नाव (Marathi - Optional)" class="w-full p-4 bg-slate-50 rounded-xl font-bold text-sm outline-none focus:ring-2 focus:ring-blue-100">
-                    <input id="mobile" type="number" placeholder="Mobile Number" class="w-full p-4 bg-slate-50 rounded-xl font-bold text-sm outline-none focus:ring-2 focus:ring-blue-100">
-                    <button onclick="saveCustomer()" class="w-full bg-blue-600 text-white h-14 rounded-xl font-bold hover:bg-blue-700 transition">Save Customer</button>
-                </div>
-
-            </div>
-        </div>
-
-        <div class="relative lg:h-[600px] flex items-center justify-center">
-            <div class="animate-float w-full max-w-md bg-white/80 backdrop-blur-xl rounded-[2.5rem] shadow-2xl ring-1 ring-white/60 p-8 z-20">
-                
-                <div class="flex justify-between items-center mb-8">
+    <div id="dashboardSection" class="hidden">
+        <nav class="fixed w-full z-50 top-0 left-0 bg-white/70 backdrop-blur-md border-b border-white/50 no-print">
+            <div class="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center text-white font-bold text-lg shadow-lg">A1</div>
                     <div>
-                        <span class="text-[10px] font-bold uppercase tracking-wider bg-green-100 text-green-700 px-3 py-1 rounded-full">Live Stats</span>
-                        <h3 class="text-2xl font-bold text-slate-900 mt-2">Revenue</h3>
+                        <div class="text-lg font-extrabold tracking-tight text-slate-900">A1 Drycleaners</div>
+                        <div class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Manager v5.0</div>
                     </div>
-                    <a href="https://pay.google.com/business" target="_blank" class="flex flex-col items-center gap-1 group">
-                        <div class="w-10 h-10 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center text-lg border border-blue-100 group-hover:bg-blue-600 group-hover:text-white transition">
-                            <i class="fa-brands fa-google-pay"></i>
+                </div>
+                <div class="flex gap-3">
+                    <button onclick="toggleSettings()" class="w-8 h-8 rounded-full bg-slate-100 border border-slate-200 flex items-center justify-center text-slate-600"><i class="fa-solid fa-gear"></i></button>
+                    <button onclick="logout()" class="w-8 h-8 rounded-full bg-red-50 border border-red-100 flex items-center justify-center text-red-500 hover:bg-red-500 hover:text-white transition"><i class="fa-solid fa-power-off"></i></button>
+                </div>
+            </div>
+        </nav>
+
+        <main class="max-w-7xl mx-auto px-6 pt-32 pb-20 grid lg:grid-cols-2 gap-16 items-start no-print">
+            <div class="flex flex-col items-start z-10">
+                <h1 class="text-4xl lg:text-5xl font-extrabold tracking-tight text-slate-900 mb-6 leading-[1.1]">Shop Dashboard</h1>
+                <div class="w-full bg-white p-2 rounded-[2rem] shadow-2xl ring-1 ring-slate-100">
+                    <div class="flex p-1 bg-slate-50 rounded-xl mb-4">
+                        <button onclick="switchTab('bill')" id="tabBill" class="flex-1 py-3 rounded-lg text-xs font-bold bg-white text-slate-900 shadow-sm transition">🧾 Bill</button>
+                        <button onclick="switchTab('customers')" id="tabCustomers" class="flex-1 py-3 rounded-lg text-xs font-bold text-slate-400 hover:text-slate-600 transition">👥 Customers</button>
+                        <button onclick="switchTab('history')" id="tabHistory" class="flex-1 py-3 rounded-lg text-xs font-bold text-slate-400 hover:text-slate-600 transition">📋 History</button>
+                    </div>
+
+                    <div id="viewBill" class="p-4 space-y-4">
+                        <div class="relative"><i class="fa-solid fa-magnifying-glass absolute left-4 top-4 text-slate-400"></i><input id="customerSearch" onkeyup="filterCustomers()" placeholder="Search Customer..." class="w-full pl-10 p-4 bg-slate-50 rounded-xl font-bold text-sm outline-none focus:ring-2 focus:ring-blue-100 transition"></div>
+                        <div id="customerList" class="flex gap-2 overflow-x-auto pb-2 no-scrollbar h-12"></div>
+                        <div class="bg-blue-50 p-4 rounded-xl border border-blue-100 grid grid-cols-2 gap-3">
+                            <div><label class="text-[10px] font-bold text-blue-400 uppercase">Service</label><select id="serviceType" onchange="calculateTotal()" class="w-full p-2 bg-white rounded-lg font-bold text-sm outline-none"><option value="80">Wash (₹80/kg)</option><option value="100">Iron+Wash (₹100)</option></select></div>
+                            <div><label class="text-[10px] font-bold text-blue-400 uppercase">Weight</label><input id="weight" type="number" step="0.1" oninput="calculateTotal()" placeholder="0.0" class="w-full p-2 bg-white rounded-lg font-bold text-sm outline-none"></div>
                         </div>
-                    </a>
-                </div>
-
-                <div class="flex flex-col items-center mb-8">
-                    <div class="relative w-48 h-48">
-                        <svg class="w-full h-full transform -rotate-90">
-                            <circle cx="96" cy="96" r="88" stroke="#f1f5f9" stroke-width="12" fill="none"></circle>
-                            <circle id="revenueCircle" class="progress-ring__circle" cx="96" cy="96" r="88" stroke="#3b82f6" stroke-width="12" fill="none" stroke-dasharray="552" stroke-dashoffset="552"></circle>
-                        </svg>
-                        <div class="absolute inset-0 flex flex-col items-center justify-center">
-                            <span id="statTotal" class="text-4xl font-extrabold text-slate-900 tracking-tight">₹0</span>
-                            <span class="text-xs font-bold text-slate-400 uppercase mt-1">Total Sales</span>
+                        <div class="grid grid-cols-2 gap-3">
+                            <input id="total" type="number" placeholder="Total" readonly class="w-full p-4 bg-slate-100 rounded-xl font-extrabold text-xl outline-none">
+                            <input id="paid" type="number" placeholder="Paid" class="w-full p-4 bg-slate-50 rounded-xl font-extrabold text-xl text-green-600 outline-none focus:ring-2 focus:ring-green-100">
+                        </div>
+                        <div class="grid grid-cols-3 gap-2 pt-2">
+                            <button onclick="processBill('save')" class="bg-slate-200 h-12 rounded-xl font-bold text-xs"><i class="fa-solid fa-save"></i> Save</button>
+                            <button onclick="processBill('print')" class="bg-slate-900 text-white h-12 rounded-xl font-bold text-xs"><i class="fa-solid fa-print"></i> Print</button>
+                            <button onclick="processBill('send')" class="bg-green-600 text-white h-12 rounded-xl font-bold text-xs"><i class="fa-brands fa-whatsapp"></i> Send</button>
                         </div>
                     </div>
-                </div>
 
-                <div class="grid grid-cols-2 gap-4 mb-6">
-                    <div class="bg-red-50 rounded-2xl p-5 border border-red-100">
-                        <div class="text-red-400 text-xs font-bold uppercase mb-1">Due</div>
-                        <div id="statDue" class="text-2xl font-extrabold text-red-600">₹0</div>
+                    <div id="viewCustomers" class="hidden p-4 space-y-4">
+                        <div class="bg-slate-50 p-4 rounded-xl border border-slate-100">
+                            <h4 class="text-xs font-bold text-slate-400 uppercase mb-2">Add New Customer</h4>
+                            <div class="grid grid-cols-2 gap-2 mb-2"><input id="newName" placeholder="Name" class="p-2 rounded-lg text-sm border"><input id="newMobile" placeholder="Mobile" class="p-2 rounded-lg text-sm border"></div>
+                            <button onclick="saveNewCustomer()" class="w-full bg-blue-600 text-white py-2 rounded-lg font-bold text-xs">Add Customer</button>
+                        </div>
+                        <input id="manageSearch" onkeyup="renderManageList()" placeholder="Search list..." class="w-full p-3 bg-white border rounded-xl text-sm mb-2">
+                        <div id="manageList" class="max-h-80 overflow-y-auto space-y-2"></div>
                     </div>
-                    <div class="bg-green-50 rounded-2xl p-5 border border-green-100">
-                        <div class="text-green-500 text-xs font-bold uppercase mb-1">Paid</div>
-                        <div id="statPaid" class="text-2xl font-extrabold text-green-600">₹0</div>
-                    </div>
-                </div>
 
-                <div>
-                    <h4 class="text-xs font-bold text-slate-400 uppercase mb-3 ml-1">Recent Transactions</h4>
-                    <div id="historyList" class="space-y-2 max-h-40 overflow-y-auto pr-2"></div>
+                    <div id="viewHistory" class="hidden p-4 space-y-4">
+                         <div id="globalHistoryList" class="max-h-96 overflow-y-auto space-y-2"></div>
+                    </div>
                 </div>
+            </div>
+
+            <div class="relative lg:h-[600px] flex items-center justify-center">
+                <div class="animate-float w-full max-w-md bg-white/80 backdrop-blur-xl rounded-[2.5rem] shadow-2xl ring-1 ring-white/60 p-8 z-20">
+                    <div class="flex justify-between items-center mb-8">
+                        <div><span class="text-[10px] font-bold uppercase tracking-wider bg-green-100 text-green-700 px-3 py-1 rounded-full">Revenue</span><h3 class="text-2xl font-bold text-slate-900 mt-2">Today's Stats</h3></div>
+                        <div class="text-right"><div class="text-3xl font-extrabold text-blue-600" id="dashTotal">₹0</div><div class="text-[10px] text-slate-400 uppercase">Total Sales</div></div>
+                    </div>
+                    <h4 class="text-xs font-bold text-slate-400 uppercase mb-3 ml-1">Recent Bills</h4>
+                    <div id="dashboardList" class="space-y-2 max-h-60 overflow-y-auto pr-2"></div>
+                </div>
+            </div>
+        </main>
+
+        <div id="settingsPanel" class="hidden fixed inset-0 z-[60] bg-black/50 flex items-center justify-center p-4 no-print">
+            <div class="bg-white rounded-2xl p-6 w-full max-w-sm shadow-2xl">
+                <h3 class="font-bold text-lg mb-4">Settings</h3>
+                <label class="text-xs font-bold text-slate-400 uppercase">Shop UPI ID</label>
+                <input id="merchantUpi" placeholder="e.g. 9890XXXXXX@okaxis" class="w-full p-3 bg-slate-50 rounded-xl font-bold text-sm outline-none border border-blue-100 mb-4">
+                <button onclick="saveUpi()" class="w-full bg-blue-600 text-white py-3 rounded-xl font-bold">Save Settings</button>
+                <button onclick="toggleSettings()" class="w-full mt-2 text-slate-400 text-xs font-bold py-2">Close</button>
+            </div>
+        </div>
+        
+        <div id="editCustomerModal" class="hidden fixed inset-0 z-[60] bg-black/50 flex items-center justify-center p-4 no-print">
+            <div class="bg-white rounded-2xl p-6 w-full max-w-sm shadow-2xl">
+                <h3 class="font-bold text-lg mb-4">Edit Customer</h3>
+                <input type="hidden" id="editCustId">
+                <input id="editEnglish" class="w-full p-3 bg-slate-50 rounded-xl font-bold text-sm outline-none border border-blue-100 mb-2">
+                <input id="editMarathi" class="w-full p-3 bg-slate-50 rounded-xl font-bold text-sm outline-none border border-blue-100 mb-2">
+                <input id="editMobile" class="w-full p-3 bg-slate-50 rounded-xl font-bold text-sm outline-none border border-blue-100 mb-4">
+                <div class="flex gap-2"><button onclick="closeEditModal()" class="flex-1 bg-slate-100 font-bold py-3 rounded-xl">Cancel</button><button onclick="saveCustomerEdits()" class="flex-1 bg-blue-600 text-white font-bold py-3 rounded-xl">Save</button></div>
             </div>
         </div>
 
-    </main>
-
-    <div id="receiptArea" class="hidden">
-        <div class="text-center font-mono">
-            <h1 class="text-2xl font-bold">A1 Drycleaners</h1>
-            <p class="text-sm">Best Laundry Service in Town</p>
-            <p class="text-sm mb-4">Pune, Maharashtra</p>
-            <hr class="border-black border-dashed mb-4">
-            
-            <div class="flex justify-between text-sm mb-2">
-                <span>Date:</span>
-                <span id="recDate"></span>
+        <div id="historyModal" class="hidden fixed inset-0 z-[60] bg-black/50 flex items-center justify-center p-4 no-print">
+            <div class="bg-white rounded-2xl p-6 w-full max-w-md shadow-2xl h-[80vh] flex flex-col">
+                <div class="flex justify-between items-center mb-4"><h3 class="font-bold text-lg">History</h3><button onclick="closeHistoryModal()" class="text-slate-400"><i class="fa-solid fa-times text-xl"></i></button></div>
+                <div id="customerHistoryList" class="flex-1 overflow-y-auto space-y-2 pr-2"></div>
             </div>
-            <div class="flex justify-between text-sm mb-4">
-                <span>Customer:</span>
-                <span id="recName" class="font-bold"></span>
-            </div>
-
-            <table class="w-full text-left text-sm mb-4">
-                <thead>
-                    <tr class="border-b border-black border-dashed">
-                        <th class="py-1">Item</th>
-                        <th class="text-right">Qty</th>
-                        <th class="text-right">Amt</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td class="py-2" id="recService">Wash</td>
-                        <td class="text-right" id="recWeight">0 kg</td>
-                        <td class="text-right font-bold" id="recTotal">₹0</td>
-                    </tr>
-                </tbody>
-            </table>
-
-            <hr class="border-black border-dashed mb-2">
-            
-            <div class="flex justify-between font-bold text-lg">
-                <span>Total:</span>
-                <span id="recFinalTotal">₹0</span>
-            </div>
-            <div class="flex justify-between text-sm">
-                <span>Paid:</span>
-                <span id="recPaid">₹0</span>
-            </div>
-            <div class="flex justify-between text-sm mb-4">
-                <span>Balance Due:</span>
-                <span id="recDue">₹0</span>
-            </div>
-
-            <hr class="border-black border-dashed mb-4">
-            <p class="text-xs text-center">Thank you for visiting!<br>Please come again.</p>
         </div>
     </div>
+
+    <div id="receiptArea" class="hidden"><div class="p-8 max-w-[300px] mx-auto text-center font-mono text-black"><h1 class="text-xl font-bold mb-1">A1 Drycleaners</h1><p class="text-xs mb-2">Pune, Maharashtra</p><div class="border-b-2 border-dashed border-black my-2"></div><div class="flex justify-between text-xs mb-1"><span>Date:</span><span id="recDate"></span></div><div class="flex justify-between text-xs mb-3"><span>Customer:</span><span id="recName" class="font-bold"></span></div><table class="w-full text-left text-xs mb-3"><thead><tr class="border-b border-black"><th class="py-1">Item</th><th class="text-right">Qty</th><th class="text-right">Amt</th></tr></thead><tbody><tr><td class="py-1" id="recService"></td><td class="text-right" id="recWeight"></td><td class="text-right" id="recTotal"></td></tr></tbody></table><div class="border-b-2 border-dashed border-black my-2"></div><div class="flex justify-between font-bold text-sm"><span>TOTAL:</span><span id="recFinalTotal"></span></div><div class="flex justify-between text-xs mt-1"><span>Paid:</span><span id="recPaid"></span></div><div class="flex justify-between text-xs mt-1"><span>Due:</span><span id="recDue"></span></div><div class="border-b-2 border-dashed border-black my-4"></div><p class="text-[10px] text-center">Thank you! Visit Again.</p></div></div>
 
     <script>
-        let allCustomers = [];
-        let selectedCustomer = null;
+        let allCustomers = [], allBills = [], selectedCustomer = null;
         let shopUPI = localStorage.getItem('shopUPI') || "";
 
-        function toggleSettings() {
-            document.getElementById('settingsPanel').classList.toggle('hidden');
-            document.getElementById('merchantUpi').value = shopUPI;
-        }
-        function saveUpi() {
-            shopUPI = document.getElementById('merchantUpi').value.trim();
-            localStorage.setItem('shopUPI', shopUPI);
-            toggleSettings();
-        }
-
-        // --- NEW: AUTO CALCULATION LOGIC ---
-        function calculateTotal() {
-            const weight = parseFloat(document.getElementById('weight').value) || 0;
-            const rate = parseInt(document.getElementById('serviceType').value);
-            const total = Math.ceil(weight * rate); // Round up to nearest integer
-            document.getElementById('total').value = total;
-        }
-
-        // --- NEW: INVOICE GENERATION ---
-        function printInvoice(bill) {
-            // 1. Populate Receipt Data
-            document.getElementById('recDate').innerText = bill.date.split(',')[0];
-            document.getElementById('recName').innerText = bill.customerName;
-            document.getElementById('recService').innerText = bill.serviceType || "Laundry";
-            document.getElementById('recWeight').innerText = bill.weight ? bill.weight + ' kg' : '-';
-            document.getElementById('recTotal').innerText = '₹' + bill.total;
-            document.getElementById('recFinalTotal').innerText = '₹' + bill.total;
-            document.getElementById('recPaid').innerText = '₹' + bill.paid;
-            document.getElementById('recDue').innerText = '₹' + bill.due;
-
-            // 2. Trigger Print
-            window.print();
-        }
-
-        function switchTab(tab) {
-            if(tab === 'bill') {
-                document.getElementById('formBill').classList.remove('hidden');
-                document.getElementById('formAdd').classList.add('hidden');
-                document.getElementById('tabBill').classList.replace('text-slate-400', 'bg-white');
-                document.getElementById('tabBill').classList.add('text-slate-900', 'shadow-sm');
-                document.getElementById('tabAdd').classList.remove('bg-white', 'text-slate-900', 'shadow-sm');
-                document.getElementById('tabAdd').classList.add('text-slate-400');
-            } else {
-                document.getElementById('formBill').classList.add('hidden');
-                document.getElementById('formAdd').classList.remove('hidden');
-                document.getElementById('tabAdd').classList.replace('text-slate-400', 'bg-white');
-                document.getElementById('tabAdd').classList.add('text-slate-900', 'shadow-sm');
-                document.getElementById('tabBill').classList.remove('bg-white', 'text-slate-900', 'shadow-sm');
-                document.getElementById('tabBill').classList.add('text-slate-400');
-            }
-        }
-
-        async function init() {
-            const cRes = await fetch('/customers');
-            allCustomers = await cRes.json();
-            loadStats();
-        }
-
-        async function loadStats() {
-            const bRes = await fetch('/bills');
-            const bills = await bRes.json();
+        // --- 1. LOGIN SYSTEM ---
+        function attemptLogin() {
+            const u = document.getElementById('loginUser').value;
+            const p = document.getElementById('loginPass').value;
             
-            let total = 0, paid = 0, due = 0;
-            let historyHTML = '';
-
-            bills.forEach((b, i) => {
-                total += b.total;
-                paid += b.paid;
-                due += b.due;
-
-                if(i < 5) {
-                    // Added Print Button in History
-                    historyHTML += `
-                    <div class="flex justify-between items-center p-3 bg-white rounded-xl border border-slate-100 shadow-sm group">
-                        <div class="flex items-center gap-3">
-                            <div class="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center font-bold text-slate-500 text-xs">${b.customerName.charAt(0)}</div>
-                            <div>
-                                <div class="text-xs font-bold text-slate-900">${b.customerName}</div>
-                                <div class="text-[10px] text-slate-400">${b.date.split(',')[0]}</div>
-                            </div>
-                        </div>
-                        <div class="flex items-center gap-3">
-                            <div class="text-right">
-                                <div class="text-xs font-bold text-slate-900">₹${b.total}</div>
-                                <div class="text-[10px] font-bold ${b.due > 0 ? 'text-red-500' : 'text-green-500'}">${b.due > 0 ? 'Due' : 'Paid'}</div>
-                            </div>
-                            <button onclick='printInvoice(${JSON.stringify(b)})' class="w-6 h-6 rounded-full bg-slate-50 text-slate-400 hover:bg-slate-900 hover:text-white transition flex items-center justify-center">
-                                <i class="fa-solid fa-print text-xs"></i>
-                            </button>
-                        </div>
-                    </div>`;
+            fetch('/login', {
+                method: 'POST', headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username: u, pass: p })
+            }).then(res => res.json()).then(data => {
+                if(data.success) {
+                    document.getElementById('loginSection').classList.add('hidden');
+                    document.getElementById('dashboardSection').classList.remove('hidden');
+                    init();
+                } else {
+                    document.getElementById('loginError').classList.remove('hidden');
                 }
             });
+        }
+        
+        function logout() { location.reload(); }
 
-            document.getElementById('statTotal').innerText = `₹${total}`;
-            document.getElementById('statPaid').innerText = `₹${paid}`;
-            document.getElementById('statDue').innerText = `₹${due}`;
-            document.getElementById('historyList').innerHTML = historyHTML;
+        // --- 2. MAIN APP LOGIC ---
+        async function init() {
+            await Promise.all([loadCustomersData(), loadBillsData()]);
+            renderDashboard(); renderManageList(); renderGlobalHistory();
+        }
+        async function loadCustomersData() { const res = await fetch('/customers'); allCustomers = await res.json(); }
+        async function loadBillsData() { const res = await fetch('/bills'); allBills = await res.json(); }
 
-            const paidPercentage = total > 0 ? (paid / total) : 0;
-            document.getElementById('revenueCircle').style.strokeDashoffset = 552 - (paidPercentage * 552);
+        function switchTab(tab) {
+            ['viewBill', 'viewCustomers', 'viewHistory'].forEach(id => document.getElementById(id).classList.add('hidden'));
+            ['tabBill', 'tabCustomers', 'tabHistory'].forEach(id => {
+                document.getElementById(id).className = "flex-1 py-3 rounded-lg text-xs font-bold text-slate-400 hover:text-slate-600 transition";
+            });
+            if(tab === 'bill') { document.getElementById('viewBill').classList.remove('hidden'); document.getElementById('tabBill').className = "flex-1 py-3 rounded-lg text-xs font-bold bg-white text-slate-900 shadow-sm transition"; }
+            if(tab === 'customers') { document.getElementById('viewCustomers').classList.remove('hidden'); document.getElementById('tabCustomers').className = "flex-1 py-3 rounded-lg text-xs font-bold bg-white text-slate-900 shadow-sm transition"; }
+            if(tab === 'history') { document.getElementById('viewHistory').classList.remove('hidden'); document.getElementById('tabHistory').className = "flex-1 py-3 rounded-lg text-xs font-bold bg-white text-slate-900 shadow-sm transition"; }
         }
 
+        // --- BILLING ---
+        function calculateTotal() {
+            const w = parseFloat(document.getElementById('weight').value) || 0;
+            const r = parseInt(document.getElementById('serviceType').value);
+            document.getElementById('total').value = Math.ceil(w * r);
+        }
         function filterCustomers() {
-            const query = document.getElementById('customerSearch').value.toLowerCase();
+            const q = document.getElementById('customerSearch').value.toLowerCase();
             const list = document.getElementById('customerList');
-            if(query.length < 1) { list.innerHTML = '<span class="text-xs font-bold text-slate-400 self-center">Type to search...</span>'; return; }
-            const matches = allCustomers.filter(c => c.english.toLowerCase().includes(query) || c.mobile.includes(query));
-            list.innerHTML = '';
+            if(q.length < 1) { list.innerHTML = ""; return; }
+            const matches = allCustomers.filter(c => c.english.toLowerCase().includes(q) || c.mobile.includes(q));
+            list.innerHTML = "";
             matches.slice(0, 5).forEach(c => {
                 const btn = document.createElement('button');
-                btn.className = "flex-shrink-0 px-4 py-2 bg-blue-50 text-blue-700 rounded-full text-xs font-bold border border-blue-100 hover:bg-blue-100 transition whitespace-nowrap";
-                btn.innerText = `${c.english}`;
-                btn.onclick = () => selectCustomer(c);
+                btn.className = "flex-shrink-0 px-4 py-2 bg-blue-50 text-blue-700 rounded-full text-xs font-bold border border-blue-100 hover:bg-blue-100 whitespace-nowrap";
+                btn.innerText = c.english;
+                btn.onclick = () => { selectedCustomer = c; document.getElementById('customerSearch').value = c.english; list.innerHTML = ""; };
                 list.appendChild(btn);
             });
         }
-
-        function selectCustomer(c) {
-            selectedCustomer = c;
-            document.getElementById('customerSearch').value = c.english;
-            document.getElementById('customerList').innerHTML = `<span class="text-xs font-bold text-green-600 bg-green-50 px-3 py-1 rounded-full border border-green-100">Selected: ${c.mobile}</span>`;
-        }
-
         function processBill(action) {
-            if(!selectedCustomer) return alert("Select a customer first!");
-            const total = Number(document.getElementById('total').value);
-            const paid = Number(document.getElementById('paid').value);
+            if(!selectedCustomer) return alert("Select Customer");
+            const total = document.getElementById('total').value;
+            const paid = document.getElementById('paid').value || 0;
             const weight = document.getElementById('weight').value;
-            const serviceVal = document.getElementById('serviceType').value;
-            const serviceName = serviceVal === "80" ? "Wash Only" : "Wash + Iron";
-            
-            if(!total) return alert("Enter weight or amount");
-
-            const billData = {
-                customerName: selectedCustomer.english,
-                customerMobile: selectedCustomer.mobile,
-                total: total,
-                paid: paid,
-                due: total - paid,
-                weight: weight,          // Saving Weight
-                serviceType: serviceName, // Saving Service Name
+            const data = {
+                customerName: selectedCustomer.english, customerMobile: selectedCustomer.mobile,
+                total: total, paid: paid, due: total - paid, weight: weight,
+                serviceType: document.getElementById('serviceType').value === "80" ? "Wash" : "Iron+Wash",
                 date: new Date().toLocaleString()
             };
-
-            fetch("/bills", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(billData) })
-            .then(() => {
-                if (action === 'send') {
-                    const msg = `*A1 DRYCLEANERS INVOICE* 🧺\n\nHello ${selectedCustomer.english},\nYour clothes are ready!\n\n⚖️ Weight: ${weight} kg (${serviceName})\n💰 Total: ₹${total}\n✅ Paid: ₹${paid}\n❗ Balance: ₹${total - paid}\n\nThank you! 🙏`;
-                    window.location.href = `https://wa.me/91${selectedCustomer.mobile}?text=${encodeURIComponent(msg)}`;
-                } else {
-                    // Save & Print Flow
-                    if(confirm("Bill Saved! Do you want to print the invoice now?")) {
-                        printInvoice(billData);
-                    }
-                    
-                    // Clear Fields
-                    document.getElementById('total').value = "";
-                    document.getElementById('paid').value = "";
-                    document.getElementById('weight').value = "";
-                    document.getElementById('customerSearch').value = "";
-                    selectedCustomer = null;
-                    loadStats();
-                }
+            fetch('/bills', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) })
+            .then(async () => {
+                if(action === 'print') printInvoice(data);
+                else if(action === 'send') window.location.href = `https://wa.me/91${selectedCustomer.mobile}?text=${encodeURIComponent(`Invoice: ₹${total}`)}`;
+                else alert("Saved");
+                
+                document.getElementById('weight').value = ""; document.getElementById('total').value = ""; 
+                document.getElementById('paid').value = ""; document.getElementById('customerSearch').value = "";
+                selectedCustomer = null; await loadBillsData(); renderDashboard(); renderGlobalHistory();
             });
         }
 
-        function saveCustomer() {
-            const customer = { english: document.getElementById('nameEnglish').value, marathi: document.getElementById('nameMarathi').value, mobile: document.getElementById('mobile').value };
-            if(!customer.english || !customer.mobile) return alert("Name & Mobile required");
-            fetch("/customers", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(customer) })
-            .then(() => { alert("Customer Saved!"); location.reload(); });
+        // --- RENDERERS ---
+        function renderDashboard() {
+            let total = 0;
+            let list = document.getElementById('dashboardList'); list.innerHTML = "";
+            allBills.slice(0, 5).forEach(b => {
+                total += b.total;
+                list.innerHTML += `<div class="flex justify-between items-center p-2 bg-slate-50 rounded-lg border border-slate-100"><div class="text-xs font-bold">${b.customerName}</div><div class="text-xs font-bold text-slate-500">₹${b.total}</div></div>`;
+            });
+            document.getElementById('dashTotal').innerText = "₹" + total;
+        }
+        function renderManageList() {
+            const q = document.getElementById('manageSearch').value.toLowerCase();
+            const list = document.getElementById('manageList'); list.innerHTML = "";
+            allCustomers.filter(c => c.english.toLowerCase().includes(q) || c.mobile.includes(q)).forEach(c => {
+                list.innerHTML += `<div class="flex justify-between items-center bg-white p-3 rounded-xl border border-slate-100 shadow-sm"><div><div class="font-bold text-sm text-slate-900">${c.english}</div><div class="text-xs text-slate-500">${c.mobile}</div></div><div class="flex gap-2"><button onclick='openHistoryModal("${c.mobile}")' class="w-8 h-8 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center hover:bg-blue-600 hover:text-white transition"><i class="fa-solid fa-clock-rotate-left text-xs"></i></button><button onclick='openEditModal(${JSON.stringify(c)})' class="w-8 h-8 rounded-full bg-slate-100 text-slate-600 flex items-center justify-center hover:bg-slate-900 hover:text-white transition"><i class="fa-solid fa-pen text-xs"></i></button></div></div>`;
+            });
+        }
+        function renderGlobalHistory() {
+            const list = document.getElementById('globalHistoryList'); list.innerHTML = "";
+            allBills.forEach(b => {
+                list.innerHTML += `<div class="flex justify-between items-center p-3 bg-white rounded-xl border border-slate-100 shadow-sm"><div><div class="font-bold text-sm text-slate-900">${b.customerName}</div><div class="text-xs text-slate-400">${b.date.split(',')[0]}</div></div><div class="text-right flex items-center gap-3"><div><div class="text-xs font-bold text-slate-900">₹${b.total}</div><div class="text-[10px] ${b.due > 0 ? 'text-red-500' : 'text-green-500'} font-bold">${b.due > 0 ? 'Due' : 'Paid'}</div></div><button onclick='printInvoice(${JSON.stringify(b)})' class="w-6 h-6 rounded-full bg-slate-100 flex items-center justify-center hover:bg-black hover:text-white transition"><i class="fa-solid fa-print text-xs"></i></button></div></div>`;
+            });
         }
 
-        init();
+        // --- CRUD & PRINT ---
+        function saveNewCustomer() {
+            const name = document.getElementById('newName').value, mobile = document.getElementById('newMobile').value;
+            if(!name || !mobile) return alert("Fill all fields");
+            fetch('/customers', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ english: name, mobile: mobile }) }).then(async () => {
+                document.getElementById('newName').value = ""; document.getElementById('newMobile').value = "";
+                await loadCustomersData(); renderManageList(); alert("Added!");
+            });
+        }
+        function openEditModal(c) {
+            document.getElementById('editCustomerModal').classList.remove('hidden');
+            document.getElementById('editCustId').value = c._id;
+            document.getElementById('editEnglish').value = c.english;
+            document.getElementById('editMarathi').value = c.marathi || "";
+            document.getElementById('editMobile').value = c.mobile;
+        }
+        function closeEditModal() { document.getElementById('editCustomerModal').classList.add('hidden'); }
+        function saveCustomerEdits() {
+            const id = document.getElementById('editCustId').value;
+            const data = { english: document.getElementById('editEnglish').value, marathi: document.getElementById('editMarathi').value, mobile: document.getElementById('editMobile').value };
+            fetch(`/customers/${id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) }).then(async () => {
+                closeEditModal(); await loadCustomersData(); renderManageList(); alert("Updated!");
+            });
+        }
+        async function openHistoryModal(mobile) {
+            document.getElementById('historyModal').classList.remove('hidden');
+            const list = document.getElementById('customerHistoryList'); list.innerHTML = '<p class="text-center text-slate-400">Loading...</p>';
+            const res = await fetch(`/bills?mobile=${mobile}`); const bills = await res.json();
+            list.innerHTML = ""; if(bills.length === 0) list.innerHTML = '<p class="text-center text-slate-400 mt-10">No history found.</p>';
+            bills.forEach(b => {
+                list.innerHTML += `<div class="bg-slate-50 p-3 rounded-lg border border-slate-100 flex justify-between items-center"><div><div class="text-xs text-slate-400">${b.date.split(',')[0]}</div><div class="font-bold text-sm text-slate-900">Total: ₹${b.total}</div></div><div class="text-right"><div class="text-xs font-bold ${b.due > 0 ? 'text-red-500' : 'text-green-500'}">${b.due > 0 ? 'Due: ₹'+b.due : 'Paid'}</div><button onclick='printInvoice(${JSON.stringify(b)})' class="text-xs text-blue-600 underline">Print</button></div></div>`;
+            });
+        }
+        function closeHistoryModal() { document.getElementById('historyModal').classList.add('hidden'); }
+        
+        function printInvoice(b) {
+            document.getElementById('recName').innerText = b.customerName; document.getElementById('recDate').innerText = b.date.split(',')[0];
+            document.getElementById('recService').innerText = b.serviceType; document.getElementById('recWeight').innerText = b.weight;
+            document.getElementById('recTotal').innerText = b.total; document.getElementById('recFinalTotal').innerText = b.total;
+            document.getElementById('recPaid').innerText = b.paid; document.getElementById('recDue').innerText = b.due;
+            setTimeout(() => window.print(), 100);
+        }
+
+        // Utils
+        function toggleSettings() { document.getElementById('settingsPanel').classList.toggle('hidden'); }
+        function saveUpi() { localStorage.setItem('shopUPI', document.getElementById('merchantUpi').value); toggleSettings(); }
     </script>
 </body>
 </html>
