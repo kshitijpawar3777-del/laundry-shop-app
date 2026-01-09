@@ -7,9 +7,10 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// --- 1. FIXED PATHS (Looks in Root AND Public) ---
-// This fixes the "Not Found" error by looking everywhere for index.html
+// --- 1. CRITICAL FIX: SERVE FILES FROM EVERYWHERE ---
+// Look for index.html in the main folder (root)
 app.use(express.static(__dirname));
+// Also look in 'public' folder just in case
 app.use(express.static(path.join(__dirname, 'public')));
 
 // MongoDB Connection
@@ -55,7 +56,7 @@ app.post("/customers", async (req, res) => {
   } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
-// ✅ NEW: Update Customer (Fixes Edit Error)
+// Update Customer
 app.put("/customers/:id", async (req, res) => {
   try {
     await Customer.findByIdAndUpdate(req.params.id, req.body);
@@ -63,7 +64,7 @@ app.put("/customers/:id", async (req, res) => {
   } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
-// ✅ NEW: Delete Customer
+// Delete Customer
 app.delete("/customers/:id", async (req, res) => {
   try {
     await Customer.findByIdAndDelete(req.params.id);
@@ -88,7 +89,7 @@ app.post("/bills", async (req, res) => {
   } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
-// ✅ NEW: Update Bill
+// Update Bill
 app.put("/bills/:id", async (req, res) => {
   try {
     await Bill.findByIdAndUpdate(req.params.id, req.body);
@@ -99,10 +100,11 @@ app.put("/bills/:id", async (req, res) => {
 // --- CATCH ALL (Serves index.html for any unknown route) ---
 app.get("*", (req, res) => {
   const rootPath = path.join(__dirname, 'index.html');
+  const publicPath = path.join(__dirname, 'public', 'index.html');
+
   res.sendFile(rootPath, (err) => {
     if (err) {
-      // If not found in root, try public folder
-      res.sendFile(path.join(__dirname, 'public', 'index.html'));
+      res.sendFile(publicPath);
     }
   });
 });
