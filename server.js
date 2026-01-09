@@ -7,11 +7,9 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// --- 1. CRITICAL FIX: SERVE FILES FROM EVERYWHERE ---
-// Look for index.html in the main folder (root)
+// --- CRITICAL FIX FOR YOUR STRUCTURE ---
+// Your index.html is in the root folder, so we serve the root directory.
 app.use(express.static(__dirname));
-// Also look in 'public' folder just in case
-app.use(express.static(path.join(__dirname, 'public')));
 
 // MongoDB Connection
 mongoose.connect("mongodb+srv://a1drycleaners:VaHfDU0CNVTMdyFR@cluster0.2vgwdtz.mongodb.net/?appName=Cluster0")
@@ -97,16 +95,9 @@ app.put("/bills/:id", async (req, res) => {
   } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
-// --- CATCH ALL (Serves index.html for any unknown route) ---
+// --- CATCH ALL (Serves index.html from ROOT) ---
 app.get("*", (req, res) => {
-  const rootPath = path.join(__dirname, 'index.html');
-  const publicPath = path.join(__dirname, 'public', 'index.html');
-
-  res.sendFile(rootPath, (err) => {
-    if (err) {
-      res.sendFile(publicPath);
-    }
-  });
+  res.sendFile(path.join(__dirname, 'index.html'));
 });
 
 const PORT = process.env.PORT || 5000;
