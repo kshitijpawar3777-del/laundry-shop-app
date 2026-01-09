@@ -7,7 +7,7 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Serve files from Root & Public (Fixes Not Found errors)
+// Serve files from Root & Public
 app.use(express.static(__dirname));
 app.use(express.static(path.join(__dirname, 'public')));
 
@@ -26,13 +26,21 @@ const Admin = mongoose.model("Admin", AdminSchema);
 const CustomerSchema = new mongoose.Schema({ marathi: String, english: String, mobile: String });
 const Customer = mongoose.model("Customer", CustomerSchema);
 
+// UPDATED BILL SCHEMA: Added 'items' field
 const BillSchema = new mongoose.Schema({
-  customerName: String, customerMobile: String, total: Number,
-  paid: Number, due: Number, weight: String, serviceType: String, date: String
+  customerName: String, 
+  customerMobile: String, 
+  total: Number,
+  paid: Number, 
+  due: Number, 
+  weight: String, 
+  serviceType: String, 
+  items: String, // Stores "2 Shirts, 1 Pant" etc.
+  date: String
 });
 const Bill = mongoose.model("Bill", BillSchema);
 
-// --- 1. LOGIN SYSTEM ---
+// --- LOGIN ---
 async function initAdmin() {
   const exist = await Admin.findOne({ username: "admin" });
   if (!exist) {
@@ -48,7 +56,7 @@ app.post("/login", async (req, res) => {
   res.json({ success: !!user });
 });
 
-// --- 2. APP ROUTES ---
+// --- ROUTES ---
 app.get("/customers", async (req, res) => {
   try { const c = await Customer.find().sort({_id: -1}); res.json(c); } catch(e){ res.json([]) }
 });
@@ -71,6 +79,14 @@ app.get("/bills", async (req, res) => {
 });
 app.post("/bills", async (req, res) => {
   const bill = new Bill(req.body); await bill.save(); res.json(bill);
+});
+
+// Edit Bill Route
+app.put("/bills/:id", async (req, res) => {
+  try {
+    await Bill.findByIdAndUpdate(req.params.id, req.body);
+    res.json({ success: true });
+  } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
 // Catch All
